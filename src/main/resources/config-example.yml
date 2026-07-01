@@ -1,0 +1,53 @@
+##################################################################################
+##               Copyright (c) 2026 jozelot. All rights reserved.               ##
+##                                                                              ##
+##                                                                              ##
+## Author: jozelot_                                                             ##
+##################################################################################
+
+# Das ist die generelle Config für den Stone Universe Bot
+
+##################################################################################
+##                                                                              ##
+##                                SYSTEM OPTIONS                                ##
+##                                                                              ##
+##################################################################################
+
+bot:
+  token: ''
+  status:
+    server: 'stoneuniverse.de'
+    port: 25565
+    # In seconds and must be more than 15 seconds.
+    update-interval: 180
+    activities:
+      online:
+        type: 'playing'
+        format: '🌍 STONESMP  •  {player_count}/{max_players} Online'
+        status: 'online'
+      maintenance:
+        type: 'watching'
+        format: 'Beobachtet die Wartungsarbeiten'
+        status: 'online'
+      offline:
+        type: 'watching'
+        format: 'Weint, weil der Server offline ist 😔'
+        status: 'online'
+
+
+database:
+  host: localhost
+  port: 5432
+  username: ''
+  password: ''
+  database: StoneUniverseBot
+
+system:
+  temp-channel:
+    channel-id: 0
+    category-id: 0
+    default-format: '🎙️︱{username}'
+
+minigames:
+  counting:
+    channel-id: 0

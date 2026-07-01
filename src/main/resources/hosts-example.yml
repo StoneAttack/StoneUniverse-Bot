@@ -1,0 +1,9 @@
+java:
+  hostname: 'stoneuniverse.de'
+  port: 25565
+
+bedrock:
+  hostname: 'stonesmp.eu'
+  port: 19132
+
+stand: '30.06.2026  •  13:41 Uhr'
