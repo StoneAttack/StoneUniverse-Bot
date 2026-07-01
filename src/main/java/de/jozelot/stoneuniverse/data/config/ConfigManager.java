@@ -32,6 +32,7 @@ public class ConfigManager {
 
     public class BotConf {
         private String token;
+        private long guildId;
         private Status status = new Status();
 
         public static class Status {
@@ -71,6 +72,9 @@ public class ConfigManager {
         }
 
         public String getToken() { return token; }
+        public long getGuildId() {
+            return guildId;
+        }
         public Status getStatus() { return status; }
     }
 
@@ -161,7 +165,7 @@ public class ConfigManager {
         }
 
         botConf.token = getString("bot.token");
-
+        botConf.guildId = getLong("bot.guild-id");
 
         // LOAD STATUS
         botConf.status.server = getString("bot.status.server");
