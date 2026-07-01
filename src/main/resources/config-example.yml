@@ -47,6 +47,9 @@ system:
     channel-id: 0
     category-id: 0
     default-format: '🎙️︱{username}'
+  level:
+    # In Sekunden (Unter 15 ist nicht schlau, da man dann zu schnell aufsteigt)
+    xp-cooldown: 30
 
 minigames:
   counting:

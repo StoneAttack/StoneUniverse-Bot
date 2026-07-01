@@ -126,4 +126,20 @@ public class Messages {
                 TextDisplay.of("\uD83D\uDD04 **Gespielte Runden:** `" + roundsPlayed + "`")
         );
     }
+
+    public static Container getLevelUp(Member member, int newLevel, int newXp) {
+        return Container.of(
+                TextDisplay.of("# \uD83C\uDFC6 Level Up"),
+                TextDisplay.of(member.getAsMention() + " ist ein Level aufgestiegen. Weiter so!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("\uD83D\uDD25 **Neues Level:** `" + newLevel + "` Level"),
+                TextDisplay.of("\uD83C\uDFC6 **Neuer XP-Stand:** `" + newXp + "` XP"),
+
+                ActionRow.of(
+                        Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE"))
+                )
+        );
+    }
 }

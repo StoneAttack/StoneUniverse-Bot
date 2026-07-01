@@ -135,10 +135,22 @@ public class ConfigManager {
             }
         }
 
+        public class Level {
+            private int xpCooldown;
+
+            public int getXpCooldown() {
+                return xpCooldown;
+            }
+        }
+
         private final TempChannel tempChannel = new TempChannel();
+        private final Level level = new Level();
 
         public TempChannel getTempChannel() {
             return tempChannel;
+        }
+        public Level getLevel() {
+            return level;
         }
     }
 
@@ -188,6 +200,8 @@ public class ConfigManager {
         system.tempChannel.channelId = getLong("system.temp-channel.channel-id");
         system.tempChannel.defaultFormat = getString("system.temp-channel.default-format");
         system.tempChannel.categoryId = getLong("system.temp-channel.category-id");
+
+        system.level.xpCooldown = getInt("system.level.xp-cooldown");
     }
 
 

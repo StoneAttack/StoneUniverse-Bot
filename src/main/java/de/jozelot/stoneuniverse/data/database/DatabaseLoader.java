@@ -66,6 +66,12 @@ public class DatabaseLoader {
                 "CREATE TABLE IF NOT EXISTS temp_channels (" +
                         "    channel_id BIGINT PRIMARY KEY," +
                         "    owner_id BIGINT NOT NULL" +
+                        ");",
+
+                "CREATE TABLE IF NOT EXISTS user_levels (" +
+                        "    user_id BIGINT PRIMARY KEY," +
+                        "    xp INT DEFAULT 0," +
+                        "    level INT DEFAULT 0" +
                         ");"
         );
 

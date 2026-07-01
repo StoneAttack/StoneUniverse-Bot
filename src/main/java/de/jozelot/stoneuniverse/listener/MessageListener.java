@@ -30,9 +30,12 @@ public class MessageListener extends ListenerAdapter {
 
         if (keywordsIp.stream().anyMatch(keyword -> messageString.toLowerCase().contains(keyword))) {
             if (event.getChannel().getIdLong() == bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId()) return;
+
             event.getMessage().replyComponents(Messages.getConnectionInfo(bot.getBootstrap().getHosts())).useComponentsV2().queue();
+
         } else if (messageString.equalsIgnoreCase("java")) {
             event.getMessage().reply("Java? Da bin ich ganz in meinem Element! ☕");
+
         }
     }
 }

@@ -10,6 +10,7 @@ import de.jozelot.stoneuniverse.data.hosts.HostsLoader;
 import de.jozelot.stoneuniverse.data.hosts.HostsManager;
 import de.jozelot.stoneuniverse.interfaces.Bootstrap;
 import de.jozelot.stoneuniverse.mechanics.CountingSystem;
+import de.jozelot.stoneuniverse.mechanics.levelSystem.LevelSystem;
 import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannelSystem;
 import de.jozelot.stoneuniverse.registry.CommandRegistry;
 import de.jozelot.stoneuniverse.registry.ListenerRegistry;
@@ -32,6 +33,7 @@ public class BotBootstrap implements Bootstrap {
 
     private CountingSystem countingSystem;
     private TempChannelSystem tempChannelSystem;
+    private LevelSystem levelSystem;
 
     private ListenerRegistry listenerRegistry;
     private CommandRegistry commandRegistry;
@@ -54,6 +56,7 @@ public class BotBootstrap implements Bootstrap {
         statusUpdater = new StatusUpdater(bot);
         countingSystem = new CountingSystem(bot);
         tempChannelSystem = new TempChannelSystem(bot);
+        levelSystem = new LevelSystem(bot);
         logger.info("Object registration finished!");
         return true;
     }
@@ -70,6 +73,7 @@ public class BotBootstrap implements Bootstrap {
         statusUpdater.load();
         heartBeat.start();
         countingSystem.initialize();
+        levelSystem.initialize();
         logger.info("Object activation finished!");
         return true;
     }
@@ -79,6 +83,7 @@ public class BotBootstrap implements Bootstrap {
         if (botManager != null) botManager.shutdown();
         if (configLoader != null) configLoader.unload();
         heartBeat.shutdown();
+        levelSystem.shutdown();
         databaseLoader.close();
         logger.info("Application shutdown finished!");
     }
@@ -87,12 +92,13 @@ public class BotBootstrap implements Bootstrap {
     public void reload() {
         botManager.shutdown();
         heartBeat.stop();
+        levelSystem.shutdown();
         databaseLoader.close();
         configLoader.reload();
         databaseLoader.connect();
         botManager.start();
         heartBeat.start();
-
+        levelSystem.initialize();
         logger.info("Reload finished!");
     }
 
@@ -116,5 +122,8 @@ public class BotBootstrap implements Bootstrap {
     }
     public TempChannelSystem getTempChannelSystem() {
         return tempChannelSystem;
+    }
+    public LevelSystem getLevelSystem() {
+        return levelSystem;
     }
 }
