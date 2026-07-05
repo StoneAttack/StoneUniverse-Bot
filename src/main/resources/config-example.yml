@@ -51,6 +51,8 @@ system:
   level:
     # In Sekunden (Unter 15 ist nicht schlau, da man dann zu schnell aufsteigt)
     xp-cooldown: 30
+    min-message-xp: 15
+    max-message-xp: 26
 
 minigames:
   counting:

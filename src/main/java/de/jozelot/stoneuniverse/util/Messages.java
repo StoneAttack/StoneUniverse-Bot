@@ -36,7 +36,7 @@ public class Messages {
 
                 TextDisplay.of("### Bedrock"),
                 TextDisplay.of("IP-Addresse: ```" + hosts.getBedrock().getHostname() + "```"),
-                TextDisplay.of("Port: ```" + hosts.getJava().getPort() + "```"),
+                TextDisplay.of("Port: ```" + hosts.getBedrock().getPort() + "```"),
 
                 Separator.createDivider(Separator.Spacing.LARGE),
 
@@ -94,7 +94,7 @@ public class Messages {
 
     public static Container getCountingInfo(int count, User lastCounter) {
         String counterInfo = "";
-        if (lastCounter != null) counterInfo = "-# " + lastCounter.getAsMention() + " hat als letztes gezählt und muss einmal warten!";
+        if (lastCounter != null) counterInfo = "-# " + lastCounter.getAsMention() + " hat als letztes gezählt und muss warten!";
         return Container.of(
                 TextDisplay.of("# \uD83D\uDD01 Counting Fortsetzung"),
                 TextDisplay.of("Der Bot ist wieder online! Während der Downtime konnte nicht gezählt werden.\n" + counterInfo),

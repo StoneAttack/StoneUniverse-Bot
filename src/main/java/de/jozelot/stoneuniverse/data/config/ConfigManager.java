@@ -141,9 +141,17 @@ public class ConfigManager {
 
         public class Level {
             private int xpCooldown;
+            private int minMessageXp;
+            private int maxMessageXp;
 
             public int getXpCooldown() {
                 return xpCooldown;
+            }
+            public int getMinMessageXp() {
+                return minMessageXp;
+            }
+            public int getMaxMessageXp() {
+                return maxMessageXp;
             }
         }
 
@@ -206,6 +214,8 @@ public class ConfigManager {
         system.tempChannel.categoryId = getLong("system.temp-channel.category-id");
 
         system.level.xpCooldown = getInt("system.level.xp-cooldown");
+        system.level.minMessageXp = getInt("system.level.min-message-xp");
+        system.level.maxMessageXp = getInt("system.level.max-message-xp");
     }
 
 

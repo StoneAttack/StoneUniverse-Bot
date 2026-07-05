@@ -28,9 +28,9 @@ public class UserLevel {
     }
 
 
-    public boolean addMessageXp() {
+    public boolean addMessageXp(int min, int max) {
         // Random XP schub
-        int xpGained = ThreadLocalRandom.current().nextInt(15, 26);
+        int xpGained = ThreadLocalRandom.current().nextInt(min, max);
         xp += xpGained;
         return checkLevel();
     }

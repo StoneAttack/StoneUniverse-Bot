@@ -27,8 +27,8 @@ public class LevelListener extends ListenerAdapter {
         UserLevel ul = bot.getBootstrap().getLevelSystem().getUserLevel(userId);
 
         if (currentTime - ul.getLastXpGain() >= bot.getBootstrap().getConfig().getSystem().getLevel().getXpCooldown() * 1000L) {
-
-            boolean hasLeveledUp = ul.addMessageXp();
+            var levelConfig = bot.getBootstrap().getConfig().getSystem().getLevel();
+            boolean hasLeveledUp = ul.addMessageXp(levelConfig.getMinMessageXp(), levelConfig.getMaxMessageXp());
 
             ul.setLastXpGain(currentTime);
 
