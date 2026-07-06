@@ -27,6 +27,7 @@ public class HeartBeat {
         logger.info("Starting scheduler...");
         secondsPassed = 0;
         int intervalStatus = bot.getBootstrap().getConfig().getBotConf().getStatus().getUpdateInterval();
+        int voiceXpCooldown = bot.getBootstrap().getConfig().getSystem().getLevel().getVoiceXpCooldown();
         triggerStatusUpdateAsync();
 
         runningTask = scheduler.scheduleAtFixedRate(() -> {
@@ -35,6 +36,9 @@ public class HeartBeat {
 
                 if (secondsPassed % intervalStatus == 0) {
                     triggerStatusUpdateAsync();
+                }
+                if (secondsPassed % voiceXpCooldown == 0) {
+                    triggerVoiceLevelingAsync();
                 }
 
             } catch (Exception e) {
@@ -67,5 +71,15 @@ public class HeartBeat {
         stop();
         scheduler.shutdown();
         logger.info("Scheduler shutdown");
+    }
+
+    private void triggerVoiceLevelingAsync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                bot.getBootstrap().getLevelSystem().checkVoiceChannels();
+            } catch (Exception e) {
+                logger.error("Error during async voice leveling update", e);
+            }
+        });
     }
 }

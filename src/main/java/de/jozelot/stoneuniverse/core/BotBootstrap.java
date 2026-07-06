@@ -67,7 +67,6 @@ public class BotBootstrap implements Bootstrap {
         hostsLoader.load();
         if (!botManager.start()) return false;
         if (!listenerRegistry.register()) return false;
-        if (!commandRegistry.register()) return false;
         if (!databaseLoader.connect()) return false;
         if (!databaseLoader.createTables()) return false;
         statusUpdater.load();
@@ -125,5 +124,8 @@ public class BotBootstrap implements Bootstrap {
     }
     public LevelSystem getLevelSystem() {
         return levelSystem;
+    }
+    public CommandRegistry getCommandRegistry() {
+        return commandRegistry;
     }
 }

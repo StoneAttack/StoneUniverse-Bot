@@ -20,11 +20,14 @@ public class ListenerRegistry implements Registry {
     public boolean register() {
         var shardManager = bot.getBootstrap().getBotManager().getShardManager();
 
+        bot.getBootstrap().getCommandRegistry().register();
+
         shardManager.addEventListener(new MessageListener(bot));
         shardManager.addEventListener(new CountingListener(bot));
         shardManager.addEventListener(new ReadyListener(bot));
         shardManager.addEventListener(new TempChannelListener(bot));
         shardManager.addEventListener(new LevelListener(bot));
+        shardManager.addEventListener(bot.getBootstrap().getCommandRegistry());
         logger.info("All Event Listener registered!");
         return true;
     }

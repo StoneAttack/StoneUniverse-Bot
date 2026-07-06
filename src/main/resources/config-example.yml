@@ -51,8 +51,15 @@ system:
   level:
     # In Sekunden (Unter 15 ist nicht schlau, da man dann zu schnell aufsteigt)
     xp-cooldown: 30
+    voice-xp-cooldown: 120
     min-message-xp: 15
     max-message-xp: 26
+    # Hier ist die Zahl das erreichte Level
+    # Format 'LEVEL:ROLE_ID' zb:
+    # 5: 1523701578391879731
+    # 10: 1523701603444719676
+    role-rewards:
+      []
 
 minigames:
   counting:

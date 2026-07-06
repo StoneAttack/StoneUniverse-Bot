@@ -1,6 +1,15 @@
 package de.jozelot.stoneuniverse.mechanics.levelSystem;
 
 import de.jozelot.stoneuniverse.StoneUniverse;
+import de.jozelot.stoneuniverse.util.Messages;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.separator.Separator;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +17,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CompletableFuture;
@@ -38,7 +49,7 @@ public class LevelSystem {
                         int xp = rs.getInt("xp");
                         int level = rs.getInt("level");
 
-                        UserLevel ul = new UserLevel(userId, xp, level);
+                        UserLevel ul = new UserLevel(bot, userId, xp, level);
                         cachedLevels.put(userId, ul);
                     }
                     logger.info("Successfully cached {} user levels from database.", cachedLevels.size());
@@ -50,7 +61,32 @@ public class LevelSystem {
     }
 
     public UserLevel getUserLevel(long userId) {
-        return cachedLevels.computeIfAbsent(userId, id -> new UserLevel(id, 0, 0));
+        return cachedLevels.computeIfAbsent(userId, id -> new UserLevel(bot, id, 0, 0));
+    }
+
+    public List<UserLevel> getTopLevel(int count) {
+        return cachedLevels.values().stream()
+                .sorted((o1, o2) -> Integer.compare(o2.getLevel(), o1.getLevel()))
+                .limit(count)
+                .toList();
+    }
+
+    public int getRank(UserLevel userLevel) {
+        return getRank(userLevel.getUserId());
+    }
+
+    public int getRank(long userId) {
+        UserLevel targetUser = cachedLevels.get(userId);
+        if (targetUser == null) {
+            return -1;
+        }
+
+        long betterPlayers = cachedLevels.values().stream()
+                .filter(ul -> ul.getLevel() > targetUser.getLevel() ||
+                        (ul.getLevel() == targetUser.getLevel() && ul.getXp() > targetUser.getXp()))
+                .count();
+
+        return (int) betterPlayers + 1;
     }
 
     public void saveUserLevel(UserLevel ul) {
@@ -69,6 +105,28 @@ public class LevelSystem {
                 logger.error("Failed to save user level to database for user {}", ul.getUserId(), e);
             }
         });
+    }
+
+    public void checkVoiceChannels() {
+        var shardManager = bot.getBootstrap().getBotManager().getShardManager();
+        if (shardManager == null) return;
+
+        for (var jda : shardManager.getShards()) {
+            for (var guild : jda.getGuilds()) {
+                for (var voiceChannel : guild.getVoiceChannels()) {
+
+                    for (var member : voiceChannel.getMembers()) {
+                        UserLevel userLevel = getUserLevel(member.getIdLong());
+                        if (userLevel.isEligibleForXp()) {
+                            if (userLevel.addMessageXp(15,25)) {
+                                voiceChannel.sendMessageComponents(Messages.getLevelUp(member, userLevel.getLevel(), userLevel.getLevel(), userLevel.getXpNeeded())).useComponentsV2().queue();
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     public void shutdown() {

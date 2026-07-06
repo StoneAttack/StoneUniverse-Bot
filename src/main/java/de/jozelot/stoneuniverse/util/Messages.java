@@ -2,6 +2,8 @@ package de.jozelot.stoneuniverse.util;
 
 import de.jozelot.stoneuniverse.data.hosts.HostsManager;
 import de.jozelot.stoneuniverse.mechanics.CountingSystem;
+import de.jozelot.stoneuniverse.mechanics.levelSystem.UserLevel;
+import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
@@ -14,6 +16,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class Messages {
 
@@ -29,7 +32,7 @@ public class Messages {
                 Separator.createDivider(Separator.Spacing.LARGE),
 
                 TextDisplay.of("### Java"),
-                TextDisplay.of("IP-Addresse: ```" + hosts.getJava().getHostname() + "```"),
+                TextDisplay.of("IP-Adresse: ```" + hosts.getJava().getHostname() + "```"),
                 TextDisplay.of("Port (Freilassen oder): ```" + hosts.getJava().getPort() + "```"),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
@@ -127,19 +130,71 @@ public class Messages {
         );
     }
 
-    public static Container getLevelUp(Member member, int newLevel, int newXp) {
+    public static Container getLevelUp(Member member, int newLevel, int newXp, int xpNeeded) {
         return Container.of(
                 TextDisplay.of("# \uD83C\uDFC6 Level Up"),
                 TextDisplay.of(member.getAsMention() + " ist ein Level aufgestiegen. Weiter so!"),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
 
-                TextDisplay.of("\uD83D\uDD25 **Neues Level:** `" + newLevel + "` Level"),
-                TextDisplay.of("\uD83C\uDFC6 **Neuer XP-Stand:** `" + newXp + "` XP"),
+                TextDisplay.of("\uD83D\uDD25 **Neues Level:** `" + newLevel + "`"),
+                TextDisplay.of("\uD83C\uDFC6 **Neuer XP-Stand:** `" + newXp + "/" + xpNeeded + "` XP"),
 
                 ActionRow.of(
                         Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE"))
                 )
+        );
+    }
+
+    public static Container getRank(Member member, int level, int xp, int xpNeeded, int rank) {
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCCA Rank Stats"),
+                TextDisplay.of("Hier sind alle Informationen zum Aktivitätsstatus von " + member.getAsMention() + "."),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("\uD83D\uDD25 **Level:** `" + level + "`"),
+                TextDisplay.of("\uD83C\uDFC6 **XP-Stand:** `" + xp + "/" + xpNeeded + "` XP"),
+                TextDisplay.of("\uD83D\uDCCA **Server Rank:** " + rank + ". Platz"),
+
+                ActionRow.of(
+                        Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE"))
+                )
+        );
+    }
+
+    public static Container getError(String message) {
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCDB Fehler!"),
+                TextDisplay.of("Es ist ein unerwarteter Fehler aufgetreten!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("```" + message +"```")
+        );
+    }
+
+    public static Container getLeaderboard(List<UserLevel> levels) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int current = 0;
+        for (UserLevel level : levels) {
+            current++;
+            stringBuilder.append("**" + current + ".** <@" + level.getUserId() + "> Level: `" + level.getLevel() + "`\n");
+        }
+
+        String userLevels = stringBuilder.toString();
+
+        if (userLevels.isEmpty()) {
+            userLevels = "-# Noch keine Daten vorhanden.";
+        }
+
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCC8 Leaderboard"),
+                TextDisplay.of("Hier siehst du die Top 10 Mitglieder des Discords!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of(userLevels)
         );
     }
 }

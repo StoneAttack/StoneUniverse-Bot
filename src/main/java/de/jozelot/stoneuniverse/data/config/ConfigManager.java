@@ -141,17 +141,26 @@ public class ConfigManager {
 
         public class Level {
             private int xpCooldown;
+            private int voiceXpCooldown;
             private int minMessageXp;
             private int maxMessageXp;
 
+            private final Map<Integer, Long> roleRewards = new HashMap<>();
+
             public int getXpCooldown() {
                 return xpCooldown;
+            }
+            public int getVoiceXpCooldown() {
+                return voiceXpCooldown;
             }
             public int getMinMessageXp() {
                 return minMessageXp;
             }
             public int getMaxMessageXp() {
                 return maxMessageXp;
+            }
+            public Map<Integer, Long> getRoleRewards() {
+                return roleRewards;
             }
         }
 
@@ -214,8 +223,30 @@ public class ConfigManager {
         system.tempChannel.categoryId = getLong("system.temp-channel.category-id");
 
         system.level.xpCooldown = getInt("system.level.xp-cooldown");
+        system.level.voiceXpCooldown = getInt("system.level.voice-xp-cooldown");
         system.level.minMessageXp = getInt("system.level.min-message-xp");
         system.level.maxMessageXp = getInt("system.level.max-message-xp");
+
+        Object rawRewards = getObject("system.level.role-rewards");
+        if (rawRewards instanceof Map) {
+            Map<?, ?> rewardsSection = (Map<?, ?>) rawRewards;
+
+            system.level.roleRewards.clear();
+
+            for (Object rawKey : rewardsSection.keySet()) {
+                try {
+                    int levelKey = Integer.parseInt(rawKey.toString());
+
+                    long roleId = getLong("system.level.role-rewards." + levelKey);
+
+                    system.level.roleRewards.put(levelKey, roleId);
+                } catch (NumberFormatException e) {
+                    logger.warn("Invalid level key in role-rewards: {}", rawKey);
+                }
+            }
+        } else {
+            logger.warn("Could not find 'system.level.role-rewards' section or it is not a valid configuration block.");
+        }
     }
 
 
