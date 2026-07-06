@@ -54,13 +54,28 @@ public class LevelListener extends ListenerAdapter {
      */
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        if (!event.getButton().getCustomId().equalsIgnoreCase("level:leaderboard")) {
-            return;
+        String buttonId = event.getButton().getCustomId();
+        if (buttonId.equalsIgnoreCase("level:leaderboard")) {
+            if (event.getGuild() == null) return;
+
+            var levelMgr = bot.getBootstrap().getLevelSystem();
+
+            event.deferReply().setEphemeral(true).queue(hook -> {
+
+                Messages.getLeaderboard(levelMgr.getTopLevel(10), event.getGuild()).thenAccept(container -> {
+
+                    hook.sendMessageComponents(container).useComponentsV2()
+                            .setAllowedMentions(Collections.emptyList())
+                            .queue();
+
+                }).exceptionally(throwable -> {
+                    hook.sendMessageComponents(Messages.getError("Leaderboard couldn't be loaded")).useComponentsV2().queue();
+                    return null;
+                });
+
+            });
+        } else if (buttonId.equalsIgnoreCase("level:info")) {
+            event.replyComponents(Messages.getLevelInfo(bot.getBootstrap().getConfig())).useComponentsV2().setEphemeral(true).queue();
         }
-        var levelMgr = bot.getBootstrap().getLevelSystem();
-        Container container = Messages.getLeaderboard(levelMgr.getTopLevel(10));
-        event.replyComponents(container).useComponentsV2()
-                .mentionRepliedUser(false)
-                .setAllowedMentions(Collections.emptyList()).setEphemeral(true).queue();
     }
 }

@@ -1,6 +1,7 @@
 package de.jozelot.stoneuniverse.registry;
 
 import de.jozelot.stoneuniverse.StoneUniverse;
+import de.jozelot.stoneuniverse.commands.IPCommand;
 import de.jozelot.stoneuniverse.commands.LeaderboardCommand;
 import de.jozelot.stoneuniverse.commands.RankCommand;
 import de.jozelot.stoneuniverse.core.BotBootstrap;
@@ -39,6 +40,7 @@ public class CommandRegistry extends ListenerAdapter implements Registry {
     public boolean register() {
         registerCommand(new RankCommand(bot));
         registerCommand(new LeaderboardCommand(bot));
+        registerCommand(new IPCommand(bot));
         return true;
     }
 

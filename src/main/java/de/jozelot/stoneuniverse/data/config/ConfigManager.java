@@ -140,6 +140,7 @@ public class ConfigManager {
         }
 
         public class Level {
+            private String infoStand;
             private int xpCooldown;
             private int voiceXpCooldown;
             private int minMessageXp;
@@ -147,6 +148,9 @@ public class ConfigManager {
 
             private final Map<Integer, Long> roleRewards = new HashMap<>();
 
+            public String getInfoStand() {
+                return infoStand;
+            }
             public int getXpCooldown() {
                 return xpCooldown;
             }
@@ -222,6 +226,7 @@ public class ConfigManager {
         system.tempChannel.defaultFormat = getString("system.temp-channel.default-format");
         system.tempChannel.categoryId = getLong("system.temp-channel.category-id");
 
+        system.level.infoStand = getString("system.level.info-stand");
         system.level.xpCooldown = getInt("system.level.xp-cooldown");
         system.level.voiceXpCooldown = getInt("system.level.voice-xp-cooldown");
         system.level.minMessageXp = getInt("system.level.min-message-xp");
@@ -233,15 +238,22 @@ public class ConfigManager {
 
             system.level.roleRewards.clear();
 
-            for (Object rawKey : rewardsSection.keySet()) {
+            for (Map.Entry<?, ?> entry : rewardsSection.entrySet()) {
                 try {
-                    int levelKey = Integer.parseInt(rawKey.toString());
+                    int levelKey = Integer.parseInt(entry.getKey().toString());
 
-                    long roleId = getLong("system.level.role-rewards." + levelKey);
+                    Object rawValue = entry.getValue();
+                    long roleId = 0L;
+
+                    if (rawValue instanceof Number) {
+                        roleId = ((Number) rawValue).longValue();
+                    } else if (rawValue != null) {
+                        roleId = Long.parseLong(rawValue.toString());
+                    }
 
                     system.level.roleRewards.put(levelKey, roleId);
                 } catch (NumberFormatException e) {
-                    logger.warn("Invalid level key in role-rewards: {}", rawKey);
+                    logger.warn("Invalid level key or role ID in role-rewards: Key={}, Value={}", entry.getKey(), entry.getValue());
                 }
             }
         } else {

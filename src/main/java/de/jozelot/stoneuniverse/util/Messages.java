@@ -1,5 +1,6 @@
 package de.jozelot.stoneuniverse.util;
 
+import de.jozelot.stoneuniverse.data.config.ConfigManager;
 import de.jozelot.stoneuniverse.data.hosts.HostsManager;
 import de.jozelot.stoneuniverse.mechanics.CountingSystem;
 import de.jozelot.stoneuniverse.mechanics.levelSystem.UserLevel;
@@ -10,13 +11,17 @@ import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Messages {
 
@@ -38,7 +43,7 @@ public class Messages {
                 Separator.createDivider(Separator.Spacing.SMALL),
 
                 TextDisplay.of("### Bedrock"),
-                TextDisplay.of("IP-Addresse: ```" + hosts.getBedrock().getHostname() + "```"),
+                TextDisplay.of("IP-Adresse: ```" + hosts.getBedrock().getHostname() + "```"),
                 TextDisplay.of("Port: ```" + hosts.getBedrock().getPort() + "```"),
 
                 Separator.createDivider(Separator.Spacing.LARGE),
@@ -141,7 +146,8 @@ public class Messages {
                 TextDisplay.of("\uD83C\uDFC6 **Neuer XP-Stand:** `" + newXp + "/" + xpNeeded + "` XP"),
 
                 ActionRow.of(
-                        Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE"))
+                        Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE")),
+                        Button.of(ButtonStyle.SECONDARY, "level:info", "Wie bekommt man XP?")
                 )
         );
     }
@@ -158,7 +164,8 @@ public class Messages {
                 TextDisplay.of("\uD83D\uDCCA **Server Rank:** " + rank + ". Platz"),
 
                 ActionRow.of(
-                        Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE"))
+                        Button.of(ButtonStyle.PRIMARY, "level:leaderboard", "Leaderboard", Emoji.fromUnicode("\uD83E\uDDEE")),
+                        Button.of(ButtonStyle.SECONDARY, "level:info", "Wie bekommt man XP?")
                 )
         );
     }
@@ -174,27 +181,91 @@ public class Messages {
         );
     }
 
-    public static Container getLeaderboard(List<UserLevel> levels) {
-        StringBuilder stringBuilder = new StringBuilder();
+    public static CompletableFuture<Container> getLeaderboard(List<UserLevel> levels, Guild guild) {
+        List<CompletableFuture<String>> futures = new ArrayList<>();
         int current = 0;
+
         for (UserLevel level : levels) {
             current++;
-            stringBuilder.append("**" + current + ".** <@" + level.getUserId() + "> Level: `" + level.getLevel() + "`\n");
+            final int rank = current;
+            long userId = level.getUserId();
+
+            var member = guild.getMemberById(userId);
+            if (member != null) {
+                String line = "**" + rank + ".** <@" + userId + "> (" + member.getEffectiveName() + ") • **Level:** `" + level.getLevel() + "`\n";
+                futures.add(CompletableFuture.completedFuture(line));
+                continue;
+            }
+
+            CompletableFuture<String> userFuture = new CompletableFuture<>();
+            guild.getJDA().retrieveUserById(userId).queue(
+                    user -> {
+                        String line = "**" + rank + ".** <@" + userId + "> (" + user.getEffectiveName() + ") • **Level:** `" + level.getLevel() + "`\n";
+                        userFuture.complete(line);
+                    },
+                    throwable -> {
+                        String line = "**" + rank + ".** <@" + userId + "> (Unbekannt) • **Level:** `" + level.getLevel() + "`\n";
+                        userFuture.complete(line);
+                    }
+            );
+            futures.add(userFuture);
         }
 
-        String userLevels = stringBuilder.toString();
+        if (futures.isEmpty()) {
+            return CompletableFuture.completedFuture(Container.of(
+                    TextDisplay.of("# \uD83D\uDCC8 Leaderboard"),
+                    TextDisplay.of("Hier siehst du die Top 10 Mitglieder des Discords!"),
 
-        if (userLevels.isEmpty()) {
-            userLevels = "-# Noch keine Daten vorhanden.";
+                    Separator.createDivider(Separator.Spacing.SMALL),
+
+                    TextDisplay.of("-# Noch keine Daten vorhanden."),
+
+                    ActionRow.of(
+                            Button.of(ButtonStyle.SECONDARY, "level:info", "Wie bekommt man XP?")
+                    )
+            ));
         }
 
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenApply(v -> {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (var future : futures) {
+                stringBuilder.append(future.join());
+            }
+
+            return Container.of(
+                    TextDisplay.of("# \uD83D\uDCC8 Leaderboard"),
+                    TextDisplay.of("Hier siehst du die Top 10 Mitglieder des Discords!"),
+
+                    Separator.createDivider(Separator.Spacing.SMALL),
+
+                    TextDisplay.of(stringBuilder.toString()),
+
+                    ActionRow.of(
+                            Button.of(ButtonStyle.SECONDARY, "level:info", "Wie bekommt man XP?")
+                    )
+            );
+        });
+    }
+
+    public static Container getLevelInfo(ConfigManager config) {
         return Container.of(
-                TextDisplay.of("# \uD83D\uDCC8 Leaderboard"),
-                TextDisplay.of("Hier siehst du die Top 10 Mitglieder des Discords!"),
+                TextDisplay.of("# \uD83D\uDCC8 Das Level System"),
+                TextDisplay.of("Du kannst XP sammeln, indem du aktiv am Server-Leben teilnimmst:\n\n" +
+                        "• **Textkanäle:** Jede Nachricht bringt dir XP (mit einem kurzen Cooldown).\n" +
+                        "• **Sprachkanäle:** Du erhältst jede Minute XP, solange du mit anderen Mitgliedern sprichst.\n\n" +
+                        "-# **Anti-Farming:** Wer alleine, stumm oder taub in einem Sprachkanal sitzt, erhält keine XP."),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
 
-                TextDisplay.of(userLevels)
+                TextDisplay.of("## \uD83C\uDFC5 Deine Belohnungen"),
+                TextDisplay.of("Für deinen Fleiß wirst du im Gegenzug automatisch belohnt:\n\n" +
+                        "• Freischaltung von exklusiven **Level-Rollen**.\n" +
+                        "• Zusätzliche **Rechte und Kanäle** auf dem Discord.\n" +
+                        "• Teilnahmeberechtigung an levelabhängigen **Giveaways**."),
+
+                Separator.createDivider(Separator.Spacing.LARGE),
+
+                TextDisplay.of("-# " + config.getSystem().getLevel().getInfoStand())
         );
     }
 }

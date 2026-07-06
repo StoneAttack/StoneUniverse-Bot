@@ -37,10 +37,24 @@ public class LeaderboardCommand implements Command {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
+        if (event.getGuild() == null) return;
+
         var levelMgr = bot.getBootstrap().getLevelSystem();
-        Container container = Messages.getLeaderboard(levelMgr.getTopLevel(10));
-        event.replyComponents(container).useComponentsV2()
-                .setAllowedMentions(Collections.emptyList()).queue();
+
+        event.deferReply().queue(hook -> {
+
+            Messages.getLeaderboard(levelMgr.getTopLevel(10), event.getGuild()).thenAccept(container -> {
+
+                hook.sendMessageComponents(container).useComponentsV2()
+                        .setAllowedMentions(Collections.emptyList())
+                        .queue();
+
+            }).exceptionally(throwable -> {
+                hook.sendMessageComponents(Messages.getError("Leaderboard couldn't be loaded")).useComponentsV2().queue();
+                return null;
+            });
+
+        });
     }
 
     @Override

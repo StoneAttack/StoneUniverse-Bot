@@ -49,6 +49,7 @@ system:
     category-id: 0
     default-format: '🎙️︱{username}'
   level:
+    info-stand: '06.07.2026  •  18:39 Uhr'
     # In Sekunden (Unter 15 ist nicht schlau, da man dann zu schnell aufsteigt)
     xp-cooldown: 30
     voice-xp-cooldown: 120
