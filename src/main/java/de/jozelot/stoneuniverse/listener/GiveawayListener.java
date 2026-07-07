@@ -2,7 +2,11 @@ package de.jozelot.stoneuniverse.listener;
 
 import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.mechanics.giveaway.Giveaway;
+import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayEnterError;
+import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayUI;
 import de.jozelot.stoneuniverse.util.Messages;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -93,10 +97,63 @@ public class GiveawayListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         String buttonId = event.getButton().getCustomId();
+        var giveawayService = bot.getBootstrap().getGiveawayService();
+        var shardManager = bot.getBootstrap().getBotManager().getShardManager();
 
         if (buttonId.startsWith("giveaway:enter:")) {
             String giveawayId = buttonId.replace("giveaway:enter:", "") ;
 
+            Giveaway giveaway = giveawayService.getGiveawayById(giveawayId);
+
+            if (giveaway == null) {
+                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterError(GiveawayEnterError.ENDED, giveaway)).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+            boolean enterSuccess = giveaway.addEntry(event.getMember().getIdLong());
+
+            if (!enterSuccess) {
+                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterError(GiveawayEnterError.ALREAD_IN, giveaway)).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            event.getMessage().editMessageComponents(bot.getBootstrap().getGiveawayService().getGiveawayUI().getGiveawayMessage(giveaway))
+                    .useComponentsV2()
+                    .setAllowedMentions(Collections.emptyList())
+                    .queue();
+            event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterSuccess(giveaway)).useComponentsV2().setEphemeral(true).queue();
+        } else if (buttonId.startsWith("giveaway:leave:")) {
+            String giveawayId = buttonId.replace("giveaway:leave:", "") ;
+
+            Giveaway giveaway = giveawayService.getGiveawayById(giveawayId);
+
+            if (giveaway == null) {
+                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterError(GiveawayEnterError.ENDED, giveaway)).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            boolean leaveSuccess = giveaway.removeEntry(event.getMember().getIdLong());
+
+            if (!leaveSuccess) {
+                event.replyComponents(Messages.getError("Can't remove from giveaway: Member was not a participant")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+            TextChannel textChannel = shardManager.getTextChannelById(giveaway.getChannelId());
+            if (textChannel == null) {
+                event.replyComponents(Messages.getError("Giveaway textchannel not found")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            textChannel.retrieveMessageById(giveaway.getMessageId()).queue(message -> {
+                message.editMessageComponents(giveawayService.getGiveawayUI().getGiveawayMessage(giveaway))
+                        .setAllowedMentions(Collections.emptyList())
+                        .useComponentsV2()
+                        .queue();
+
+                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayLeaveSuccess(giveaway)).useComponentsV2().queue();
+
+            }, throwable -> {
+                event.replyComponents(Messages.getError("Giveaway message not found")).useComponentsV2().setEphemeral(true).queue();
+            });
         }
     }
 

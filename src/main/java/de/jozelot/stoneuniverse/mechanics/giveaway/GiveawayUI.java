@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.Timestamp;
 
+import javax.security.auth.login.CredentialException;
+
 
 public class GiveawayUI {
 
@@ -51,7 +53,7 @@ public class GiveawayUI {
                 .build();
 
         TextInput rollDate = TextInput.create("giveaway:roll_date", TextInputStyle.SHORT)
-                .setPlaceholder("1d 1h 1s - Kann Kombiniert werden")
+                .setPlaceholder("1d 1h 1m - Kann Kombiniert werden")
                 .setRequired(true)
                 .setMaxLength(20)
                 .build();
@@ -94,15 +96,45 @@ public class GiveawayUI {
                 TextDisplay.of("**Endet:** <t:" + discordTimestamp + ":R> (<t:" + discordTimestamp + ":F>)\n" +
                         "**Gewinner:** " + giveaway.getWinnerCount() + "\n" +
                         "**Host:** " + "<@" + giveaway.getCreatorId() + ">\n" +
-                        "**Teilnehmer:** " + giveaway.getEntries()),
+                        "**Teilnehmer:** " + giveaway.getEntryCount()),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
 
                 TextDisplay.of("-# ID: `" + giveaway.getId() + "`"),
 
                 ActionRow.of(
-                        Button.of(ButtonStyle.PRIMARY, "giveaway:enter:" + giveaway.getId(), "Teilnehmen • 0", Emoji.fromUnicode("\uD83C\uDF89"))
+                        Button.of(ButtonStyle.PRIMARY, "giveaway:enter:" + giveaway.getId(), "Teilnehmen • " + giveaway.getEntryCount(), Emoji.fromUnicode("\uD83C\uDF89"))
                 )
+        );
+    }
+
+    public Container getGiveawayEnterError(GiveawayEnterError giveawayEnterError, Giveaway giveaway) {
+        String error = giveawayEnterError.getText();
+
+        if (giveawayEnterError == GiveawayEnterError.ALREAD_IN) {
+            return Container.of(
+                    TextDisplay.of("# \uD83D\uDCDB Teilnahme Fehler"),
+                    TextDisplay.of(error),
+                    ActionRow.of(Button.of(ButtonStyle.DANGER, "giveaway:leave:" + giveaway.getId(), "Verlassen", Emoji.fromUnicode("⛔"))
+            ));
+        }
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCDB Teilnahme Fehler"),
+                TextDisplay.of(error)
+        );
+    }
+
+    public Container getGiveawayEnterSuccess(Giveaway giveaway) {
+        return Container.of(
+                TextDisplay.of("# ✅ Giveaway Teilnahme Erfolgreich"),
+                TextDisplay.of("Du bist dem Giveaway `" + giveaway.getTitel() + "` erfolgreich beigetreten. Viel Glück!")
+        );
+    }
+
+    public Container getGiveawayLeaveSuccess(Giveaway giveaway) {
+        return Container.of(
+                TextDisplay.of("# ✅ Giveaway Austritt Erfolgreich"),
+                TextDisplay.of("Du bist dem Giveaway `" + giveaway.getTitel() + "` erfolgreich ausgetreten.")
         );
     }
 }

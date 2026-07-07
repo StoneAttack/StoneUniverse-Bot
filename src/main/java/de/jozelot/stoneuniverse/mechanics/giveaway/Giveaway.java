@@ -15,6 +15,7 @@ public class Giveaway {
 
     private final long channelId;
     private long messageId;
+    private boolean ended = false;
 
     private final List<Long> entries = new ArrayList<>();
 
@@ -72,5 +73,8 @@ public class Giveaway {
     }
     public List<Long> getEntries() {
         return Collections.unmodifiableList(entries);
+    }
+    public boolean hasEnded() {
+        return ended;
     }
 }
