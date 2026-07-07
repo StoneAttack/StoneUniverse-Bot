@@ -1,12 +1,12 @@
 package de.jozelot.stoneuniverse.registry;
 
 import de.jozelot.stoneuniverse.StoneUniverse;
-import de.jozelot.stoneuniverse.commands.IPCommand;
-import de.jozelot.stoneuniverse.commands.LeaderboardCommand;
-import de.jozelot.stoneuniverse.commands.RankCommand;
+import de.jozelot.stoneuniverse.commands.*;
 import de.jozelot.stoneuniverse.core.BotBootstrap;
 import de.jozelot.stoneuniverse.interfaces.Command;
 import de.jozelot.stoneuniverse.interfaces.Registry;
+import de.jozelot.stoneuniverse.util.Messages;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -41,6 +41,9 @@ public class CommandRegistry extends ListenerAdapter implements Registry {
         registerCommand(new RankCommand(bot));
         registerCommand(new LeaderboardCommand(bot));
         registerCommand(new IPCommand(bot));
+        registerCommand(new CountingCommand(bot));
+        registerCommand(new MediaCommand(bot));
+        registerCommand(new GiveawayCommand(bot));
         return true;
     }
 
@@ -51,6 +54,11 @@ public class CommandRegistry extends ListenerAdapter implements Registry {
         Command command = commands.get(event.getName());
 
         if (command != null) {
+            Permission neededPermission = command.getPermission();
+            if (!event.getMember().hasPermission(neededPermission)) {
+                event.replyComponents(Messages.getCommandNoPermission(neededPermission)).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
             command.execute(event);
         }
     }

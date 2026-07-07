@@ -44,6 +44,9 @@ database:
   database: StoneUniverseBot
 
 system:
+  messages:
+    media:
+      stand: '07.07.2026  •  13:25 Uhr'
   temp-channel:
     channel-id: 0
     category-id: 0

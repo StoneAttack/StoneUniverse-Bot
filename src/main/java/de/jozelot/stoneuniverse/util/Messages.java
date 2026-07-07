@@ -4,7 +4,7 @@ import de.jozelot.stoneuniverse.data.config.ConfigManager;
 import de.jozelot.stoneuniverse.data.hosts.HostsManager;
 import de.jozelot.stoneuniverse.mechanics.CountingSystem;
 import de.jozelot.stoneuniverse.mechanics.levelSystem.UserLevel;
-import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
@@ -15,13 +15,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class Messages {
 
@@ -181,6 +180,22 @@ public class Messages {
         );
     }
 
+    public static Container getCommandNoPermission(Permission... permissions) {
+        String missingPermissions = Arrays.stream(permissions)
+                .map(Permission::getName)
+                .collect(Collectors.joining(", "));
+
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCDB Keine Rechte"),
+                TextDisplay.of("-# Du hast keine Rechte diesen Command zu nutzen!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("## Dir fehlen folgende Berechtigungen:"),
+                TextDisplay.of("```" + missingPermissions + "```")
+        );
+    }
+
     public static CompletableFuture<Container> getLeaderboard(List<UserLevel> levels, Guild guild) {
         List<CompletableFuture<String>> futures = new ArrayList<>();
         int current = 0;
@@ -266,6 +281,30 @@ public class Messages {
                 Separator.createDivider(Separator.Spacing.LARGE),
 
                 TextDisplay.of("-# " + config.getSystem().getLevel().getInfoStand())
+        );
+    }
+
+    public static Container getMediaAnf(ConfigManager config) {
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCF9 Media-Anforderungen"),
+                TextDisplay.of("-# Um bei uns eine Bewerbung für den Media-Rang erstellen zu können brauchst du folgende Anforderungen."),
+
+                Separator.createDivider(Separator.Spacing.LARGE),
+
+                TextDisplay.of("• Gute Video- und Audioqualität\n" +
+                        "• Mindestens 150 Follower auf TikTok, YouTube oder Twitch\n" +
+                        "• Seit mindestens 3 Monaten aktiv auf Social Media\n" +
+                        "• Regelmäßige Content-Erstellung\n" +
+                        "• Freundliches und respektvolles Verhalten\n" +
+                        "• Interesse an Minecraft und der StoneUniverse-Community\n" +
+                        "• Zuverlässigkeit bei Absprachen und Terminen\n" +
+                        "• Kreativität bei der Gestaltung von Content\n" +
+                        "• Bereitschaft, konstruktives Feedback anzunehmen\n" +
+                        "• Kein Ruf durch toxisches Verhalten oder Regelverstöße auf anderen Servern"),
+
+                Separator.createDivider(Separator.Spacing.LARGE),
+
+                TextDisplay.of("-# " + config.getSystem().getMessages().getMedia().getStand())
         );
     }
 }

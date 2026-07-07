@@ -10,6 +10,7 @@ import de.jozelot.stoneuniverse.data.hosts.HostsLoader;
 import de.jozelot.stoneuniverse.data.hosts.HostsManager;
 import de.jozelot.stoneuniverse.interfaces.Bootstrap;
 import de.jozelot.stoneuniverse.mechanics.CountingSystem;
+import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayService;
 import de.jozelot.stoneuniverse.mechanics.levelSystem.LevelSystem;
 import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannelSystem;
 import de.jozelot.stoneuniverse.registry.CommandRegistry;
@@ -34,6 +35,7 @@ public class BotBootstrap implements Bootstrap {
     private CountingSystem countingSystem;
     private TempChannelSystem tempChannelSystem;
     private LevelSystem levelSystem;
+    private GiveawayService giveawayService;
 
     private ListenerRegistry listenerRegistry;
     private CommandRegistry commandRegistry;
@@ -57,6 +59,7 @@ public class BotBootstrap implements Bootstrap {
         countingSystem = new CountingSystem(bot);
         tempChannelSystem = new TempChannelSystem(bot);
         levelSystem = new LevelSystem(bot);
+        giveawayService = new GiveawayService(bot);
         logger.info("Object registration finished!");
         return true;
     }
@@ -127,5 +130,8 @@ public class BotBootstrap implements Bootstrap {
     }
     public CommandRegistry getCommandRegistry() {
         return commandRegistry;
+    }
+    public GiveawayService getGiveawayService() {
+        return giveawayService;
     }
 }

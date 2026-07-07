@@ -5,6 +5,8 @@ import de.jozelot.stoneuniverse.StoneUniverse;
 import kotlin.jvm.internal.SourceDebugExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.print.DocFlavor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -123,6 +125,22 @@ public class ConfigManager {
     }
 
     public class System {
+        public class Messages {
+            public class Media {
+                private String stand;
+
+                public String getStand() {
+                    return stand;
+                }
+            }
+
+            Media media = new Media();
+
+            public Media getMedia() {
+                return media;
+            }
+        }
+
         public class TempChannel {
             private long channelId;
             private long categoryId;
@@ -168,9 +186,13 @@ public class ConfigManager {
             }
         }
 
+        private final Messages messages = new Messages();
         private final TempChannel tempChannel = new TempChannel();
         private final Level level = new Level();
 
+        public Messages getMessages() {
+            return messages;
+        }
         public TempChannel getTempChannel() {
             return tempChannel;
         }
@@ -259,6 +281,8 @@ public class ConfigManager {
         } else {
             logger.warn("Could not find 'system.level.role-rewards' section or it is not a valid configuration block.");
         }
+
+        system.messages.media.stand = getString("system.messages.media.stand");
     }
 
 

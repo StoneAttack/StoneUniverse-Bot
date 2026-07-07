@@ -27,17 +27,22 @@ public class LeaderboardCommand implements Command {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("leaderboard", "\uD83D\uDCCA | Zeige dir das Level Leaderboard an.");
+        return Commands.slash("leaderboard", "\uD83C\uDFC6 | Zeige dir das Level Leaderboard an.");
     }
 
     @Override
     public List<CommandData> getAliases() {
-        return List.of(Commands.slash("lb", "\uD83D\uDCCA | Zeige dir das Level Leaderboard an."));
+        return List.of(Commands.slash("lb", "\uD83C\uDFC6 | Zeige dir das Level Leaderboard an."));
     }
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         if (event.getGuild() == null) return;
+
+        if (event.getChannelIdLong() == bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId()) {
+            event.replyComponents(Messages.getError("Can't use that command in this Channel.")).useComponentsV2().setEphemeral(true).queue();
+            return;
+        }
 
         var levelMgr = bot.getBootstrap().getLevelSystem();
 

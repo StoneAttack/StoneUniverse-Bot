@@ -28,6 +28,7 @@ public class ListenerRegistry implements Registry {
         shardManager.addEventListener(new TempChannelListener(bot));
         shardManager.addEventListener(new LevelListener(bot));
         shardManager.addEventListener(bot.getBootstrap().getCommandRegistry());
+        shardManager.addEventListener(new GiveawayListener(bot));
         logger.info("All Event Listener registered!");
         return true;
     }
