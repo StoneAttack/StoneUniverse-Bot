@@ -1,0 +1,15 @@
+services:
+  bot:
+    image: ghcr.io/stoneattack/stoneuniverse-bot:latest
+    container_name: stoneuniverse-bot
+    restart: unless-stopped
+    working_dir: /app
+
+    # config.yml und hosts.yml liegen auf dem VPS neben dieser Datei
+    # und werden schreibgeschützt in den Container gemountet
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+      - ./hosts.yml:/app/hosts.yml:ro
+
+    environment:
+      - TZ=Europe/Berlin
