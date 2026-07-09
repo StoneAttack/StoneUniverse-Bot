@@ -121,6 +121,10 @@ public class GiveawayListener extends ListenerAdapter {
                     .setAllowedMentions(Collections.emptyList())
                     .queue();
             event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterSuccess(giveaway)).useComponentsV2().setEphemeral(true).queue();
+
+            /**
+             * Austritt
+             */
         } else if (buttonId.startsWith("giveaway:leave:")) {
             String giveawayId = buttonId.replace("giveaway:leave:", "") ;
 
@@ -149,7 +153,7 @@ public class GiveawayListener extends ListenerAdapter {
                         .useComponentsV2()
                         .queue();
 
-                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayLeaveSuccess(giveaway)).useComponentsV2().queue();
+                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayLeaveSuccess(giveaway)).useComponentsV2().setEphemeral(true).queue();
 
             }, throwable -> {
                 event.replyComponents(Messages.getError("Giveaway message not found")).useComponentsV2().setEphemeral(true).queue();

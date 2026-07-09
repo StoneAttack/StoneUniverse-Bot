@@ -18,6 +18,7 @@ public class Giveaway {
     private boolean ended = false;
 
     private final List<Long> entries = new ArrayList<>();
+    private final List<Long> winner = new ArrayList<>();
 
     public Giveaway(String id, long creatorId, String titel, String description, int entryLimit, int winnerCount, long drawDate, long channelId) {
         this.id = id;
@@ -73,6 +74,9 @@ public class Giveaway {
     }
     public List<Long> getEntries() {
         return Collections.unmodifiableList(entries);
+    }
+    public List<Long> getWinner() {
+        return Collections.unmodifiableList(winner);
     }
     public boolean hasEnded() {
         return ended;

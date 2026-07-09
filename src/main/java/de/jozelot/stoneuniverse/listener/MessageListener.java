@@ -26,7 +26,7 @@ public class MessageListener extends ListenerAdapter {
         Message message = event.getMessage();
         String messageString = message.getContentStripped();
 
-        Collection<String> keywordsIp = List.of("addresse", "ip", "ipaddresse", "adrese", "addrese", "adresse", "ip-addresse", "address", "ipaddress", "ip-address");
+        Collection<String> keywordsIp = List.of("addresse", " ip ", "ipaddresse", "adrese", "addrese", "adresse", "ip-addresse", "address", "ipaddress", "ip-address");
 
         if (keywordsIp.stream().anyMatch(keyword -> messageString.toLowerCase().contains(keyword))) {
             if (event.getChannel().getIdLong() == bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId()) return;
@@ -36,7 +36,7 @@ public class MessageListener extends ListenerAdapter {
         } else if (messageString.equalsIgnoreCase("java")) {
             event.getMessage().reply("Java? Da bin ich ganz in meinem Element! ☕");
 
-        } else if (messageString.toLowerCase().contains("media") && messageString.toLowerCase().contains("anforderung")) {
+        } else if (messageString.toLowerCase().contains(" media") && messageString.toLowerCase().contains("anforderung")) {
             event.getMessage().replyComponents(Messages.getMediaAnf(bot.getBootstrap().getConfig())).useComponentsV2().queue();
         }
     }

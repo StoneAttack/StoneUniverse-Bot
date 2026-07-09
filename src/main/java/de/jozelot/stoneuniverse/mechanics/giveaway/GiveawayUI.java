@@ -83,6 +83,7 @@ public class GiveawayUI {
     public Container getGiveawayMessage(Giveaway giveaway) {
         long drawDateMs = giveaway.getDrawDate();
         long discordTimestamp = drawDateMs / 1000;
+        String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "\n**Teilnahme-Limit:** " + giveaway.getEntryLimit();
 
         return Container.of(
                 TextDisplay.of("# \uD83C\uDF89 " + giveaway.getTitel()),
@@ -96,7 +97,8 @@ public class GiveawayUI {
                 TextDisplay.of("**Endet:** <t:" + discordTimestamp + ":R> (<t:" + discordTimestamp + ":F>)\n" +
                         "**Gewinner:** " + giveaway.getWinnerCount() + "\n" +
                         "**Host:** " + "<@" + giveaway.getCreatorId() + ">\n" +
-                        "**Teilnehmer:** " + giveaway.getEntryCount()),
+                        "**Teilnehmer:** " + giveaway.getEntryCount() + teilnahmeLimit
+                ),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
 
