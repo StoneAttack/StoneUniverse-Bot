@@ -33,16 +33,11 @@ public class CountingListener extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (!event.isFromGuild() || event.getAuthor().isBot()) return;
 
-        Channel rawChannel = event.getChannel();
-        // IST DER KANAL EIN TEXTCHANNEL?
-        if (!rawChannel.getType().isMessage()) return;
-
-        TextChannel channel = event.getChannel().asTextChannel();
+        var channel = event.getChannel();
         long countingChannelId = bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId();
 
-        // IST ER EIN COUNTING CHANNEL?
-        // logger.info(String.valueOf(countingChannelId));
         if (channel.getIdLong() != countingChannelId) return;
+
         String rawMessage = event.getMessage().getContentRaw();
 
         int count;

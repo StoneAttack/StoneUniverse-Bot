@@ -28,5 +28,6 @@ public class Main {
             logger.info("Shutdown-Hook triggered. Preparing for shutdown...");
             bot.onDisable();
         }));
+        logger.info("Startup finished! Done!");
     }
 }

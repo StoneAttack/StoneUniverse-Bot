@@ -2,6 +2,7 @@ package de.jozelot.stoneuniverse;
 
 import de.jozelot.stoneuniverse.core.BotBootstrap;
 import de.jozelot.stoneuniverse.interfaces.Bot;
+import de.jozelot.stoneuniverse.registry.ConsoleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,7 @@ public class StoneUniverse implements Bot {
 
     private static final Logger logger = LoggerFactory.getLogger(StoneUniverse.class);
     private BotBootstrap bootstrap;
+    private ConsoleListener consoleListener;
 
     /**
      * Bot Startup
@@ -17,6 +19,7 @@ public class StoneUniverse implements Bot {
     @Override
     public boolean onEnable() {
         bootstrap = new BotBootstrap(this);
+        consoleListener = new ConsoleListener(this);
 
         boolean register = bootstrap.register();
         if (!register) {
@@ -29,6 +32,7 @@ public class StoneUniverse implements Bot {
             logger.error("Object activation failed! Look above for further information.");
             return false;
         }
+        consoleListener.startConsoleListener();
         return true;
     }
 

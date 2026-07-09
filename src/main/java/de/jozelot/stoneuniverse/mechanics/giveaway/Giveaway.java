@@ -55,6 +55,24 @@ public class Giveaway {
         return true;
     }
 
+    public boolean reroll() {
+        if (!ended) return false;
+
+        this.winner.clear();
+
+        if (entries.isEmpty()) return true;
+
+        java.util.List<Long> pool = new java.util.ArrayList<>(this.entries);
+        int amountToDraw = Math.min(winnerCount, pool.size());
+        var random = java.util.concurrent.ThreadLocalRandom.current();
+
+        for (int i = 0; i < amountToDraw; i++) {
+            int randomIndex = random.nextInt(pool.size());
+            this.winner.add(pool.remove(randomIndex));
+        }
+        return true;
+    }
+
     public boolean cancel() {
         if (ended) return false;
         ended = true;
@@ -90,6 +108,14 @@ public class Giveaway {
         }
         this.messageId = messageId;
         return true;
+    }
+
+    public void loadWinner(long winnerId) {
+        this.winner.add(winnerId);
+    }
+
+    public void setEnded(boolean ended) {
+        this.ended = ended;
     }
 
     public String getId() { return id; }

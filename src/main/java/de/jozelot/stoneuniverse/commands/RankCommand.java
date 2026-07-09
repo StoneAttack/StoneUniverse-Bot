@@ -59,6 +59,7 @@ public class RankCommand implements Command {
 
         event.replyComponents(Messages.getRank(target, userLevel.getLevel(), userLevel.getXp(), userLevel.getXpNeeded(), levelMgr.getRank(target.getIdLong())))
                 .setAllowedMentions(Collections.emptyList())
+                .setEphemeral(true)
                 .useComponentsV2().queue();
     }
 

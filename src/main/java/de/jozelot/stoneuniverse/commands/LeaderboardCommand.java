@@ -46,7 +46,7 @@ public class LeaderboardCommand implements Command {
 
         var levelMgr = bot.getBootstrap().getLevelSystem();
 
-        event.deferReply().queue(hook -> {
+        event.deferReply().setEphemeral(true).queue(hook -> {
 
             Messages.getLeaderboard(levelMgr.getTopLevel(10), event.getGuild()).thenAccept(container -> {
 
@@ -55,7 +55,7 @@ public class LeaderboardCommand implements Command {
                         .queue();
 
             }).exceptionally(throwable -> {
-                hook.sendMessageComponents(Messages.getError("Leaderboard couldn't be loaded")).useComponentsV2().queue();
+                hook.sendMessageComponents(Messages.getError("Leaderboard couldn't be loaded")).useComponentsV2().setEphemeral(true).queue();
                 return null;
             });
 

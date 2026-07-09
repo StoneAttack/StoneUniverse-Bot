@@ -27,37 +27,36 @@ public class LevelSystem {
 
     private static final Logger logger = LoggerFactory.getLogger(LevelSystem.class);
     private final StoneUniverse bot;
+    private final LevelUI levelUI;
 
     private final Map<Long, UserLevel> cachedLevels = new ConcurrentHashMap<>(); // User ID | UserLevel Objekt
 
     public LevelSystem(StoneUniverse bot) {
         this.bot = bot;
+        this.levelUI = new LevelUI(bot);
     }
 
-    public void initialize() {
+    public boolean initialize() {
         logger.info("Loading user levels from database into cache...");
 
-        CompletableFuture.runAsync(() -> {
-            try (Connection conn = bot.getBootstrap().getDatabaseLoader().getConnection()) {
-                String sql = "SELECT user_id, xp, level FROM user_levels;";
-
-                try (PreparedStatement stmt = conn.prepareStatement(sql);
-                     ResultSet rs = stmt.executeQuery()) {
-
-                    while (rs.next()) {
-                        long userId = rs.getLong("user_id");
-                        int xp = rs.getInt("xp");
-                        int level = rs.getInt("level");
-
-                        UserLevel ul = new UserLevel(bot, userId, xp, level);
-                        cachedLevels.put(userId, ul);
-                    }
-                    logger.info("Successfully cached {} user levels from database.", cachedLevels.size());
+        try (Connection conn = bot.getBootstrap().getDatabaseLoader().getConnection()) {
+            String sql = "SELECT user_id, xp, level FROM user_levels;";
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    long userId = rs.getLong("user_id");
+                    int xp = rs.getInt("xp");
+                    int level = rs.getInt("level");
+                    UserLevel ul = new UserLevel(bot, userId, xp, level);
+                    cachedLevels.put(userId, ul);
                 }
-            } catch (SQLException e) {
-                logger.error("Failed to load user levels from database!", e);
+                logger.info("Successfully cached {} user levels from database.", cachedLevels.size());
+                return true;
             }
-        });
+        } catch (SQLException e) {
+            logger.error("Failed to load user levels from database!", e);
+            return false;
+        }
     }
 
     public UserLevel getUserLevel(long userId) {
@@ -149,5 +148,9 @@ public class LevelSystem {
         } catch (SQLException e) {
             logger.error("Error while trying to save all user levels!", e);
         }
+    }
+
+    public LevelUI getLevelUI() {
+        return levelUI;
     }
 }

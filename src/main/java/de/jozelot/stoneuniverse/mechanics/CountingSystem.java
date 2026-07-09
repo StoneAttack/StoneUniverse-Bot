@@ -113,30 +113,28 @@ public class CountingSystem {
         saveToDatabase();
     }
 
-    public void initialize() {
+    public boolean initialize() {
         logger.info("Loading counting system data from database...");
-
-        CompletableFuture.runAsync(() -> {
-            try (Connection conn = bot.getBootstrap().getDatabaseLoader().getConnection()) {
-                String selectSql = "SELECT current_count, last_counter_id, rounds_played, highscore FROM counting WHERE id = 1;";
-
-                try (PreparedStatement stmt = conn.prepareStatement(selectSql);
-                     ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        this.currentCount = rs.getInt("current_count");
-                        this.roundsPlayed = rs.getInt("rounds_played");
-                        this.currentHighscore = rs.getInt("highscore");
-                        this.lastCounterId = Long.parseLong(rs.getString("last_counter_id"));
-
-                        logger.info("Counting system loaded! Count: {}, Highscore: {}", currentCount, currentHighscore);
-                    } else {
-                        logger.warn("No existing counting data found. System starts at 0.");
-                    }
+        try (Connection conn = bot.getBootstrap().getDatabaseLoader().getConnection()) {
+            String selectSql = "SELECT current_count, last_counter_id, rounds_played, highscore FROM counting WHERE id = 1;";
+            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    this.currentCount = rs.getInt("current_count");
+                    this.roundsPlayed = rs.getInt("rounds_played");
+                    this.currentHighscore = rs.getInt("highscore");
+                    this.lastCounterId = Long.parseLong(rs.getString("last_counter_id"));
+                    logger.info("Counting system loaded! Count: {}, Highscore: {}", currentCount, currentHighscore);
+                    return true;
+                } else {
+                    logger.warn("No existing counting data found. System starts at 0.");
+                    return true;
                 }
-            } catch (SQLException | NumberFormatException e) {
-                logger.error("Failed to initialize counting system!", e);
             }
-        });
+        } catch (SQLException | NumberFormatException e) {
+            logger.error("Failed to initialize counting system!", e);
+            return false;
+        }
     }
 
     public void saveToDatabase() {

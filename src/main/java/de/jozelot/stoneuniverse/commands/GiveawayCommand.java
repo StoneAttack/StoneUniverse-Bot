@@ -126,7 +126,7 @@ public class GiveawayCommand implements Command {
             event.replyComponents(Messages.getError("Giveaway has not ended")).useComponentsV2().setEphemeral(true).queue();
             return;
         }
-        giveaway.roll();
+        giveaway.reroll();
 
         TextChannel textChannel = shardManager.getTextChannelById(giveaway.getChannelId());
         if (textChannel == null) {

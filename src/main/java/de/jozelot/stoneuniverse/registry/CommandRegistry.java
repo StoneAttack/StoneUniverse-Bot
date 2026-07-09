@@ -46,6 +46,7 @@ public class CommandRegistry extends ListenerAdapter implements Registry {
         registerCommand(new CountingCommand(bot));
         registerCommand(new MediaCommand(bot));
         registerCommand(new GiveawayCommand(bot));
+        registerCommand(new LevelCommand(bot));
         return true;
     }
 

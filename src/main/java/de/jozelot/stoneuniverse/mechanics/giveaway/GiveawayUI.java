@@ -225,7 +225,7 @@ public class GiveawayUI {
 
     public Container getGiveaways(String guildId) {
         var giveawayService = bot.getBootstrap().getGiveawayService();
-        List<Giveaway> giveaways = giveawayService.getGiveaways();
+        List<Giveaway> giveaways = giveawayService.getGiveaways().stream().filter(g -> !g.hasEnded()).toList();
 
         StringBuilder sb = new StringBuilder();
 

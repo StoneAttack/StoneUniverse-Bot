@@ -18,9 +18,13 @@ import de.jozelot.stoneuniverse.registry.ListenerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 public class BotBootstrap implements Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(BotBootstrap.class);
+    private ScheduledExecutorService scheduler;
 
     private final StoneUniverse bot;
     private BotManager botManager;
@@ -46,6 +50,7 @@ public class BotBootstrap implements Bootstrap {
 
     @Override
     public boolean register() {
+        this.scheduler = Executors.newScheduledThreadPool(2);
         botManager = new BotManager(bot);
         config = new ConfigManager(bot);
         configLoader = new ConfigLoader(bot);
@@ -59,7 +64,7 @@ public class BotBootstrap implements Bootstrap {
         countingSystem = new CountingSystem(bot);
         tempChannelSystem = new TempChannelSystem(bot);
         levelSystem = new LevelSystem(bot);
-        giveawayService = new GiveawayService(bot);
+        giveawayService = new GiveawayService(bot, scheduler);
         logger.info("Object registration finished!");
         return true;
     }
@@ -74,8 +79,9 @@ public class BotBootstrap implements Bootstrap {
         if (!databaseLoader.createTables()) return false;
         statusUpdater.load();
         heartBeat.start();
-        countingSystem.initialize();
-        levelSystem.initialize();
+        if (!countingSystem.initialize()) return false;
+        if (!levelSystem.initialize()) return false;
+        if (!giveawayService.initialize()) return false;
         logger.info("Object activation finished!");
         return true;
     }
@@ -86,6 +92,8 @@ public class BotBootstrap implements Bootstrap {
         if (configLoader != null) configLoader.unload();
         heartBeat.shutdown();
         levelSystem.shutdown();
+        giveawayService.save();
+        if (scheduler != null) scheduler.shutdown();
         databaseLoader.close();
         logger.info("Application shutdown finished!");
     }
@@ -95,12 +103,14 @@ public class BotBootstrap implements Bootstrap {
         botManager.shutdown();
         heartBeat.stop();
         levelSystem.shutdown();
+        giveawayService.save();
         databaseLoader.close();
         configLoader.reload();
         databaseLoader.connect();
         botManager.start();
         heartBeat.start();
         levelSystem.initialize();
+        giveawayService.initialize();
         logger.info("Reload finished!");
     }
 

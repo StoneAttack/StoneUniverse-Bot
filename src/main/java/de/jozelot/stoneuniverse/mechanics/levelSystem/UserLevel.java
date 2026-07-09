@@ -142,4 +142,59 @@ public class UserLevel {
 
         return true;
     }
+
+    public void setXp(int amount) {
+        this.xp = amount;
+        recalculateLevel();
+    }
+
+    public void addXp(int amount) {
+        this.xp += amount;
+        checkLevel();
+    }
+
+    public void removeXp(int amount) {
+        this.xp -= amount;
+        if (this.xp < 0) {
+            this.xp = 0;
+        }
+        recalculateLevel();
+    }
+
+    public void setLevelDirect(int amount) {
+        this.level = amount;
+        checkForRoleReward();
+    }
+
+    public void addLevelAndCheck(int amount) {
+        this.level += amount;
+        checkForRoleReward();
+    }
+
+    public void removeLevelAndCheck(int amount) {
+        this.level -= amount;
+        if (this.level < 0) {
+            this.level = 0;
+        }
+        checkForRoleReward();
+    }
+
+    private void recalculateLevel() {
+        int targetLevel = 0;
+        int currentXp = this.xp;
+
+        while (true) {
+            int needed = 5 * (targetLevel * targetLevel) + (50 * targetLevel) + 100;
+            if (currentXp >= needed) {
+                currentXp -= needed;
+                targetLevel++;
+            } else {
+                break;
+            }
+        }
+
+        this.level = targetLevel;
+        this.xp = currentXp;
+        checkForRoleReward();
+    }
 }

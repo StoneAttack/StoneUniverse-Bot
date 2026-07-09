@@ -26,9 +26,9 @@ public class MessageListener extends ListenerAdapter {
         Message message = event.getMessage();
         String messageString = message.getContentStripped();
 
-        Collection<String> keywordsIp = List.of("addresse", " ip ", "ipaddresse", "adrese", "addrese", "adresse", "ip-addresse", "address", "ipaddress", "ip-address");
+        String regex = ".*\\b(ip|adresse|adrese|addrese|address|ip-?adresse|ip-?adrese|ip-?address)\\b.*";
 
-        if (keywordsIp.stream().anyMatch(keyword -> messageString.toLowerCase().contains(keyword))) {
+        if (messageString.matches(regex)) {
             if (event.getChannel().getIdLong() == bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId()) return;
 
             event.getMessage().replyComponents(Messages.getConnectionInfo(bot.getBootstrap().getHosts())).useComponentsV2().queue();

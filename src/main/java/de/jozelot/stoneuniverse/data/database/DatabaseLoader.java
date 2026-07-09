@@ -72,6 +72,33 @@ public class DatabaseLoader {
                         "    user_id BIGINT PRIMARY KEY," +
                         "    xp INT DEFAULT 0," +
                         "    level INT DEFAULT 0" +
+                        ");",
+
+                "CREATE TABLE IF NOT EXISTS giveaways (" +
+                        "    id VARCHAR(16) PRIMARY KEY," +
+                        "    creator_id BIGINT NOT NULL," +
+                        "    titel VARCHAR(100) NOT NULL," +
+                        "    description VARCHAR(2000)," +
+                        "    entry_limit INT DEFAULT 0," +
+                        "    winner_count INT DEFAULT 1," +
+                        "    draw_date BIGINT NOT NULL," +
+                        "    channel_id BIGINT NOT NULL," +
+                        "    message_id BIGINT NOT NULL," +
+                        "    ended BOOLEAN DEFAULT FALSE" +
+                        ");",
+
+                "CREATE TABLE IF NOT EXISTS giveaway_entries (" +
+                        "    giveaway_id VARCHAR(16) NOT NULL," +
+                        "    user_id BIGINT NOT NULL," +
+                        "    PRIMARY KEY (giveaway_id, user_id)," +
+                        "    FOREIGN KEY (giveaway_id) REFERENCES giveaways(id) ON DELETE CASCADE" +
+                        ");",
+
+                "CREATE TABLE IF NOT EXISTS giveaway_winners (" +
+                        "    giveaway_id VARCHAR(16) NOT NULL," +
+                        "    user_id BIGINT NOT NULL," +
+                        "    PRIMARY KEY (giveaway_id, user_id)," +
+                        "    FOREIGN KEY (giveaway_id) REFERENCES giveaways(id) ON DELETE CASCADE" +
                         ");"
         );
 

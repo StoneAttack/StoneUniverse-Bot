@@ -3,16 +3,13 @@ package de.jozelot.stoneuniverse.listener;
 import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.mechanics.giveaway.Giveaway;
 import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayEnterError;
-import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayUI;
 import de.jozelot.stoneuniverse.util.Messages;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,6 +73,7 @@ public class GiveawayListener extends ListenerAdapter {
 
             var shardManager = bot.getBootstrap().getBotManager().getShardManager();
             var channel = shardManager.getTextChannelById(channelId);
+            var giveawayService = bot.getBootstrap().getGiveawayService();
 
             if (channel != null) {
                 channel.sendMessageComponents(bot.getBootstrap().getGiveawayService().getGiveawayUI().getGiveawayMessage(giveaway))
@@ -85,6 +83,8 @@ public class GiveawayListener extends ListenerAdapter {
                             long generatedMessageId = successMessage.getIdLong();
 
                             giveaway.setMessageId(generatedMessageId);
+                            giveawayService.saveSingleAsync(giveaway);
+                            giveawayService.scheduleGiveawayEnd(giveaway);
 
                             event.replyComponents(bot.getBootstrap().getGiveawayService().getGiveawayUI().getSetupSuccess()).useComponentsV2().setEphemeral(true).queue();
                         }, throwable -> {
@@ -124,6 +124,7 @@ public class GiveawayListener extends ListenerAdapter {
                     .setAllowedMentions(Collections.emptyList())
                     .queue();
             event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterSuccess(giveaway)).useComponentsV2().setEphemeral(true).queue();
+            giveawayService.saveSingleAsync(giveaway);
 
             /**
              * Austritt
@@ -157,6 +158,7 @@ public class GiveawayListener extends ListenerAdapter {
                         .queue();
 
                 event.replyComponents(giveawayService.getGiveawayUI().getGiveawayLeaveSuccess(giveaway)).useComponentsV2().setEphemeral(true).queue();
+                giveawayService.saveSingleAsync(giveaway);
 
             }, throwable -> {
                 event.replyComponents(Messages.getError("Giveaway message not found")).useComponentsV2().setEphemeral(true).queue();

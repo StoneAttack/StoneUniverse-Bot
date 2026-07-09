@@ -15,7 +15,19 @@ public class ReadyListener extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
+        /*long guildId = bot.getBootstrap().getConfig().getBotConf().getGuildId();
+        var guild = event.getJDA().getGuildById(guildId);
+
+        if (guild != null) {
+            guild.updateCommands().queue(success -> {
+            });
+        }
+
+        event.getJDA().updateCommands().queue(success -> {
+        });
+        if (true) return;*/
         bot.getBootstrap().getCountingSystem().sendRestartMessage();
         bot.getBootstrap().getTempChannelSystem().initialize();
+        bot.getBootstrap().getGiveawayService().checkExpiredGiveaways();
     }
 }
