@@ -29,7 +29,7 @@ public class HostsLoader implements FileConfiguration {
         try {
             if (!configFile.exists()) {
                 logger.info("config.yml not found. Creating default configuration file.");
-                try (InputStream in = getClass().getClassLoader().getResourceAsStream("hosts.yml")) {
+                try (InputStream in = getClass().getClassLoader().getResourceAsStream("hosts-example.yml")) {
                     if (in == null) {
                         logger.error("Default hosts.yml could not be found inside the jar resources!");
                         return false;
