@@ -12,9 +12,9 @@ import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.modals.Modal;
-import net.dv8tion.jda.api.utils.Timestamp;
 
-import javax.security.auth.login.CredentialException;
+import java.awt.*;
+import java.util.List;
 
 
 public class GiveawayUI {
@@ -85,12 +85,14 @@ public class GiveawayUI {
         long discordTimestamp = drawDateMs / 1000;
         String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "\n**Teilnahme-Limit:** " + giveaway.getEntryLimit();
 
+        String description = giveaway.getDescription().equalsIgnoreCase("") ? "Keine Beschreibung angegeben." : giveaway.getDescription();
+
         return Container.of(
                 TextDisplay.of("# \uD83C\uDF89 " + giveaway.getTitel()),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
 
-                TextDisplay.of(giveaway.getDescription()),
+                TextDisplay.of(description),
 
                 Separator.createDivider(Separator.Spacing.SMALL),
 
@@ -107,6 +109,87 @@ public class GiveawayUI {
                 ActionRow.of(
                         Button.of(ButtonStyle.PRIMARY, "giveaway:enter:" + giveaway.getId(), "Teilnehmen • " + giveaway.getEntryCount(), Emoji.fromUnicode("\uD83C\uDF89"))
                 )
+        ).withAccentColor(new Color(0x5865F2));
+    }
+
+    public Container getGiveawayMessageRolled(Giveaway giveaway) {
+        long drawDateMs = System.currentTimeMillis();
+        long discordTimestamp = drawDateMs / 1000;
+        String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "\n**Teilnahme-Limit:** " + giveaway.getEntryLimit();
+
+        String winnerText;
+        if (giveaway.getWinner().isEmpty()) {
+            winnerText = "Es gab keine Teilnehmer, somit konnte kein Gewinner gezogen werden.";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            giveaway.getWinner().forEach(winnerId -> sb.append("• <@").append(winnerId).append(">\n"));
+            winnerText = sb.toString();
+        }
+
+        String description = giveaway.getDescription().equalsIgnoreCase("") ? "Keine Beschreibung angegeben." : giveaway.getDescription();
+
+        return Container.of(
+                TextDisplay.of("# \uD83C\uDF89 " + giveaway.getTitel()),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of(description),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Beendet:** <t:" + discordTimestamp + ":R> (<t:" + discordTimestamp + ":F>)\n" +
+                        "**Gewinner:** " + giveaway.getWinnerCount() + "\n" +
+                        "**Host:** <@" + giveaway.getCreatorId() + ">\n" +
+                        "**Teilnehmer:** " + giveaway.getEntryCount() + teilnahmeLimit
+                ),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("## \uD83C\uDFC6 Gewinner"),
+                TextDisplay.of(winnerText),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("-# ID: `" + giveaway.getId() + "`"),
+
+                ActionRow.of(
+                        Button.of(ButtonStyle.SECONDARY, "giveaway:ended:" + giveaway.getId(), "Beendet", Emoji.fromUnicode("\uD83C\uDF89")).withDisabled(true)
+                )
+        ).withAccentColor(new Color(0x747F8D));
+    }
+
+    public Container getGiveawayRollSuccess(Giveaway giveaway) {
+        String winnerText;
+        if (giveaway.getWinner().isEmpty()) {
+            winnerText = "Es gab keine Teilnehmer, somit konnte kein Gewinner gezogen werden.";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            giveaway.getWinner().forEach(winnerId -> sb.append("• <@").append(winnerId).append(">\n"));
+            winnerText = sb.toString();
+        }
+
+        return Container.of(
+                TextDisplay.of("# \uD83C\uDF89 Giveaway Beendet"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Giveaway:** " + giveaway.getTitel()),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("## \uD83C\uDFC6 Gewinner"),
+                TextDisplay.of(winnerText),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("-# ID: `" + giveaway.getId() + "`")
+        );
+    }
+
+    public Container getGiveawayPreRollReply(Giveaway giveaway) {
+        return Container.of(
+                TextDisplay.of("# ✅ Giveaway Vorzeitig Beendet"),
+                TextDisplay.of("Du hast das Giveaway `" + giveaway.getTitel() + "` erfolgreich beendet!")
         );
     }
 
@@ -137,6 +220,93 @@ public class GiveawayUI {
         return Container.of(
                 TextDisplay.of("# ✅ Giveaway Austritt Erfolgreich"),
                 TextDisplay.of("Du bist dem Giveaway `" + giveaway.getTitel() + "` erfolgreich ausgetreten.")
+        );
+    }
+
+    public Container getGiveaways(String guildId) {
+        var giveawayService = bot.getBootstrap().getGiveawayService();
+        List<Giveaway> giveaways = giveawayService.getGiveaways();
+
+        StringBuilder sb = new StringBuilder();
+
+        if (giveaways.isEmpty()) {
+            sb.append("Es sind keine aktiven Giveaways vorhanden.");
+        } else {
+            giveaways.forEach(giveaway -> {
+                String messageJumpUrl = String.format("https://discord.com/channels/%s/%d/%d",
+                        guildId,
+                        giveaway.getChannelId(),
+                        giveaway.getMessageId()
+                );
+
+                sb.append("• **").append(giveaway.getTitel()).append("** | Einträge: `")
+                        .append(giveaway.getEntryCount()).append("` | ID: `").append(giveaway.getId())
+                        .append("` — [[Nachricht]](").append(messageJumpUrl).append(")\n");
+            });
+        }
+        return Container.of(
+                TextDisplay.of("# 📋 Aktive Giveaways"),
+                Separator.createDivider(Separator.Spacing.SMALL),
+                TextDisplay.of(sb.toString())
+        );
+    }
+
+    public Container getGiveawayCancelSuccess(Giveaway giveaway) {
+        return Container.of(
+                TextDisplay.of("# \uD83D\uDCDB Giveaway Abgebrochen"),
+                TextDisplay.of("-# Das Giveaway wurde abgebrochen!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Giveaway:** " + giveaway.getTitel()),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("-# ID: `" + giveaway.getId() + "`")
+        );
+    }
+
+    public Container getGiveawayMessageCancel(Giveaway giveaway) {
+        long drawDateMs = System.currentTimeMillis();
+        long discordTimestamp = drawDateMs / 1000;
+        String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "\n**Teilnahme-Limit:** " + giveaway.getEntryLimit();
+
+        String description = giveaway.getDescription().equalsIgnoreCase("") ? "Keine Beschreibung angegeben." : giveaway.getDescription();
+
+        return Container.of(
+                TextDisplay.of("# \uD83C\uDF89 " + giveaway.getTitel()),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of(description),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Beendet:** <t:" + discordTimestamp + ":R> (<t:" + discordTimestamp + ":F>)\n" +
+                        "**Gewinner:** " + giveaway.getWinnerCount() + "\n" +
+                        "**Host:** <@" + giveaway.getCreatorId() + ">\n" +
+                        "**Teilnehmer:** " + giveaway.getEntryCount() + teilnahmeLimit
+                ),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("## Abgebrochen"),
+                TextDisplay.of("-# Das Giveaway wurde abgebrochen!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("-# ID: `" + giveaway.getId() + "`"),
+
+                ActionRow.of(
+                        Button.of(ButtonStyle.SECONDARY, "giveaway:ended:" + giveaway.getId(), "Beendet", Emoji.fromUnicode("\uD83C\uDF89")).withDisabled(true)
+                )
+        ).withAccentColor(new Color(0x747F8D));
+    }
+
+    public Container getGiveawayCancelReply(Giveaway giveaway) {
+        return Container.of(
+                TextDisplay.of("# ✅ Giveaway Abgebrochen"),
+                TextDisplay.of("Du hast das Giveaway `" + giveaway.getTitel() + "` erfolgreich beendet!")
         );
     }
 }

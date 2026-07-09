@@ -34,4 +34,7 @@ public class GiveawayService {
     public GiveawayUI getGiveawayUI() {
         return giveawayUI;
     }
+    public List<Giveaway> getGiveaways() {
+        return Collections.unmodifiableList(giveaways);
+    }
 }

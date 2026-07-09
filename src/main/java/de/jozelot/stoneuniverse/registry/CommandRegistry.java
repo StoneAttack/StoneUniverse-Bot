@@ -8,10 +8,12 @@ import de.jozelot.stoneuniverse.interfaces.Registry;
 import de.jozelot.stoneuniverse.util.Messages;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +62,19 @@ public class CommandRegistry extends ListenerAdapter implements Registry {
                 return;
             }
             command.execute(event);
+        }
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        Command command = commands.get(event.getName());
+
+        if (command != null) {
+            Permission neededPermission = command.getPermission();
+            if (!event.getMember().hasPermission(neededPermission)) {
+                return;
+            }
+            command.autoComplete(event);
         }
     }
 

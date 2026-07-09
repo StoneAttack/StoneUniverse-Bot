@@ -3,6 +3,7 @@ package de.jozelot.stoneuniverse.mechanics.giveaway;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Giveaway {
     private final String id;
@@ -31,14 +32,44 @@ public class Giveaway {
         this.channelId = channelId;
     }
 
-    public boolean addEntry(long userId) {
+    public boolean roll() {
+        if (ended) return false;
+        ended = true;
+        if (entries.isEmpty()) {
+            return true;
+        }
+
+        List<Long> pool = new ArrayList<>(this.entries);
+        int amountToDraw = Math.min(winnerCount, pool.size());
+
+        var random = ThreadLocalRandom.current();
+
+        for (int i = 0; i < amountToDraw; i++) {
+            int randomIndex = random.nextInt(pool.size());
+
+            long winnerId = pool.remove(randomIndex);
+
+            this.winner.add(winnerId);
+        }
+
+        return true;
+    }
+
+    public boolean cancel() {
+        if (ended) return false;
+        ended = true;
+        return true;
+    }
+
+    public GiveawayEnterError addEntry(long userId) {
         if (hasEntered(userId)) {
-            return false;
+            return GiveawayEnterError.ALREAD_IN;
         }
         if (entryLimit > 0 && entries.size() >= entryLimit) {
-            return false;
+            return GiveawayEnterError.FULL;
         }
-        return entries.add(userId);
+        entries.add(userId);
+        return GiveawayEnterError.SUCCESS;
     }
 
     public boolean removeEntry(long userId) {

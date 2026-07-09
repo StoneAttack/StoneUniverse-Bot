@@ -109,10 +109,13 @@ public class GiveawayListener extends ListenerAdapter {
                 event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterError(GiveawayEnterError.ENDED, giveaway)).useComponentsV2().setEphemeral(true).queue();
                 return;
             }
-            boolean enterSuccess = giveaway.addEntry(event.getMember().getIdLong());
+            GiveawayEnterError enterSuccess = giveaway.addEntry(event.getMember().getIdLong());
 
-            if (!enterSuccess) {
+            if (enterSuccess == GiveawayEnterError.ALREAD_IN) {
                 event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterError(GiveawayEnterError.ALREAD_IN, giveaway)).useComponentsV2().setEphemeral(true).queue();
+                return;
+            } else if (enterSuccess == GiveawayEnterError.FULL) {
+                event.replyComponents(giveawayService.getGiveawayUI().getGiveawayEnterError(GiveawayEnterError.FULL, giveaway)).useComponentsV2().setEphemeral(true).queue();
                 return;
             }
 
