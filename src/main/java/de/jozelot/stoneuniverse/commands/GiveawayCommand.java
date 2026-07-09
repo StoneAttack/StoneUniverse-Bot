@@ -57,6 +57,8 @@ public class GiveawayCommand implements Command {
             cancel(event);
         } else if (subcommandName.equalsIgnoreCase("list")) {
             list(event);
+        } else if (subcommandName.equalsIgnoreCase("reroll")) {
+            reroll(event);
         } else {
             event.replyComponents(Messages.getError("Unknown Subcommand: " + subcommandName)).useComponentsV2().setEphemeral(true).queue();
         }
@@ -107,6 +109,46 @@ public class GiveawayCommand implements Command {
 
     public void list(SlashCommandInteractionEvent event) {
         event.replyComponents(bot.getBootstrap().getGiveawayService().getGiveawayUI().getGiveaways(event.getGuild().getId())).useComponentsV2().setEphemeral(true).queue();
+    }
+
+    public void reroll(SlashCommandInteractionEvent event) {
+        String giveawayId = event.getOption("id").getAsString();
+        var giveawayService = bot.getBootstrap().getGiveawayService();
+        var shardManager = bot.getBootstrap().getBotManager().getShardManager();
+
+        Giveaway giveaway = giveawayService.getGiveawayById(giveawayId);
+
+        if (giveaway == null) {
+            event.replyComponents(Messages.getError("Giveaway not found")).useComponentsV2().setEphemeral(true).queue();
+            return;
+        }
+        if (!giveaway.hasEnded()) {
+            event.replyComponents(Messages.getError("Giveaway has not ended")).useComponentsV2().setEphemeral(true).queue();
+            return;
+        }
+        giveaway.roll();
+
+        TextChannel textChannel = shardManager.getTextChannelById(giveaway.getChannelId());
+        if (textChannel == null) {
+            event.replyComponents(Messages.getError("Giveaway textchannel not found")).useComponentsV2().setEphemeral(true).queue();
+            return;
+        }
+
+        textChannel.retrieveMessageById(giveaway.getMessageId()).queue(message -> {
+            message.editMessageComponents(giveawayService.getGiveawayUI().getGiveawayMessageReRolled(giveaway))
+                    .setAllowedMentions(Collections.emptyList())
+                    .useComponentsV2()
+                    .queue();
+
+            message.replyComponents(giveawayService.getGiveawayUI().getGiveawayReRollSuccess(giveaway))
+                    .useComponentsV2()
+                    .queue();
+
+            event.replyComponents(giveawayService.getGiveawayUI().getGiveawayReRollReply(giveaway)).useComponentsV2().setEphemeral(true).queue();
+
+        }, throwable -> {
+            event.replyComponents(Messages.getError("Giveaway message not found")).useComponentsV2().setEphemeral(true).queue();
+        });
     }
 
     /**

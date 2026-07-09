@@ -309,4 +309,85 @@ public class GiveawayUI {
                 TextDisplay.of("Du hast das Giveaway `" + giveaway.getTitel() + "` erfolgreich beendet!")
         );
     }
+
+    public Container getGiveawayMessageReRolled(Giveaway giveaway) {
+        long drawDateMs = System.currentTimeMillis();
+        long discordTimestamp = drawDateMs / 1000;
+        String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "\n**Teilnahme-Limit:** " + giveaway.getEntryLimit();
+
+        String winnerText;
+        if (giveaway.getWinner().isEmpty()) {
+            winnerText = "Es gab keine Teilnehmer, somit konnte kein Gewinner gezogen werden.";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            giveaway.getWinner().forEach(winnerId -> sb.append("• <@").append(winnerId).append(">\n"));
+            winnerText = sb.toString();
+        }
+
+        String description = giveaway.getDescription().equalsIgnoreCase("") ? "Keine Beschreibung angegeben." : giveaway.getDescription();
+
+        return Container.of(
+                TextDisplay.of("# \uD83C\uDF89 " + giveaway.getTitel() + " - Rerolled"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of(description),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Beendet:** <t:" + discordTimestamp + ":R> (<t:" + discordTimestamp + ":F>)\n" +
+                        "**Gewinner:** " + giveaway.getWinnerCount() + "\n" +
+                        "**Host:** <@" + giveaway.getCreatorId() + ">\n" +
+                        "**Teilnehmer:** " + giveaway.getEntryCount() + teilnahmeLimit
+                ),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("## \uD83C\uDFC6 Gewinner"),
+                TextDisplay.of(winnerText),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("-# ID: `" + giveaway.getId() + "`"),
+
+                ActionRow.of(
+                        Button.of(ButtonStyle.SECONDARY, "giveaway:ended:" + giveaway.getId(), "Beendet", Emoji.fromUnicode("\uD83C\uDF89")).withDisabled(true)
+                )
+        ).withAccentColor(new Color(0x747F8D));
+    }
+
+    public Container getGiveawayReRollSuccess(Giveaway giveaway) {
+        String winnerText;
+        if (giveaway.getWinner().isEmpty()) {
+            winnerText = "Es gab keine Teilnehmer, somit konnte kein Gewinner gezogen werden.";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            giveaway.getWinner().forEach(winnerId -> sb.append("• <@").append(winnerId).append(">\n"));
+            winnerText = sb.toString();
+        }
+
+        return Container.of(
+                TextDisplay.of("# \uD83C\uDF89 Giveaway Rerolled"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Giveaway:** " + giveaway.getTitel()),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("## \uD83C\uDFC6 Gewinner"),
+                TextDisplay.of(winnerText),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("-# ID: `" + giveaway.getId() + "`")
+        );
+    }
+
+    public Container getGiveawayReRollReply(Giveaway giveaway) {
+        return Container.of(
+                TextDisplay.of("# ✅ Giveaway Rerolled"),
+                TextDisplay.of("Du hast das Giveaway `" + giveaway.getTitel() + "` erfolgreich rerolled!")
+        );
+    }
 }
