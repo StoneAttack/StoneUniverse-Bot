@@ -36,7 +36,7 @@ public class MessageListener extends ListenerAdapter {
         } else if (messageString.equalsIgnoreCase("java")) {
             event.getMessage().reply("Java? Da bin ich ganz in meinem Element! ☕");
 
-        } else if (messageString.toLowerCase().contains(" media") && messageString.toLowerCase().contains("anforderung")) {
+        } else if (messageString.toLowerCase().contains("media") && messageString.toLowerCase().contains("anforderung")) {
             event.getMessage().replyComponents(Messages.getMediaAnf(bot.getBootstrap().getConfig())).useComponentsV2().queue();
         }
     }
