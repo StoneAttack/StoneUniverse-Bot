@@ -234,8 +234,6 @@ public class ConfigManager {
             logger.warn("Could not find 'bot.status.activities' section or it is not a valid configuration block.");
         }
 
-        logger.info("Config was fully loaded");
-
         database.host = getString("database.host");
         database.port = getInt("database.port");
         database.user = getString("database.username");
@@ -283,6 +281,7 @@ public class ConfigManager {
         }
 
         system.messages.media.stand = getString("system.messages.media.stand");
+        logger.info("Config was fully loaded");
     }
 
 

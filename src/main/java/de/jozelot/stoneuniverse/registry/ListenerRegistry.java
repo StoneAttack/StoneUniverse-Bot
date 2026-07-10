@@ -4,6 +4,8 @@ import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.data.config.ConfigManager;
 import de.jozelot.stoneuniverse.interfaces.Registry;
 import de.jozelot.stoneuniverse.listener.*;
+import de.jozelot.stoneuniverse.listener.tempChannel.TempChannelListener;
+import de.jozelot.stoneuniverse.listener.tempChannel.TempChannelSettingsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,7 @@ public class ListenerRegistry implements Registry {
         shardManager.addEventListener(new CountingListener(bot));
         shardManager.addEventListener(new ReadyListener(bot));
         shardManager.addEventListener(new TempChannelListener(bot));
+        shardManager.addEventListener(new TempChannelSettingsListener(bot));
         shardManager.addEventListener(new LevelListener(bot));
         shardManager.addEventListener(bot.getBootstrap().getCommandRegistry());
         shardManager.addEventListener(new GiveawayListener(bot));

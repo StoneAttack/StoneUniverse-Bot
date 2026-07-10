@@ -3,6 +3,7 @@ package de.jozelot.stoneuniverse.mechanics.tempChannels;
 import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.core.BotBootstrap;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -26,10 +27,12 @@ public class TempChannelSystem {
 
     private static final Logger logger = LoggerFactory.getLogger(TempChannelSystem.class);
     private final StoneUniverse bot;
+    private final TempChannelUI tempChannelUI;
     private final Map<Long, TempChannel> tempChannels = new HashMap<>(); // ChannelId | TempChannel Object
 
     public TempChannelSystem(StoneUniverse bot) {
         this.bot = bot;
+        this.tempChannelUI = new TempChannelUI(bot);
     }
 
     public void initialize() {
@@ -140,6 +143,7 @@ public class TempChannelSystem {
                     success -> logger.info("Moved {} to their new temp channel.", member.getEffectiveName()),
                     throwable -> logger.warn("Could not move user, maybe they left the voice chat in the meantime.")
             );
+            sendMessage(tempChannel, voiceChannel);
 
         }, throwable -> {
             logger.error("Failed to create temporary voice channel!", throwable);
@@ -174,5 +178,13 @@ public class TempChannelSystem {
 
     public TempChannel getTempChannel(long channelId) {
         return tempChannels.get(channelId);
+    }
+    public TempChannelUI getTempChannelUI() {
+        return tempChannelUI;
+    }
+
+    public void sendMessage(TempChannel tempChannel, VoiceChannel voiceChannel) {
+        Container infoMessage = bot.getBootstrap().getTempChannelSystem().getTempChannelUI().getSettingsMessage(tempChannel.getOwnerId(), voiceChannel);
+        voiceChannel.sendMessageComponents(infoMessage).useComponentsV2().queue();
     }
 }

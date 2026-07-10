@@ -9,6 +9,7 @@ import de.jozelot.stoneuniverse.data.database.DatabaseLoader;
 import de.jozelot.stoneuniverse.data.hosts.HostsLoader;
 import de.jozelot.stoneuniverse.data.hosts.HostsManager;
 import de.jozelot.stoneuniverse.interfaces.Bootstrap;
+import de.jozelot.stoneuniverse.listener.tempChannel.TempChannelSettingsListener;
 import de.jozelot.stoneuniverse.mechanics.CountingSystem;
 import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayService;
 import de.jozelot.stoneuniverse.mechanics.levelSystem.LevelSystem;

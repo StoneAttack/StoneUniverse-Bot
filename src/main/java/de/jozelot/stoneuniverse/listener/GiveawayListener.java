@@ -90,6 +90,8 @@ public class GiveawayListener extends ListenerAdapter {
                         }, throwable -> {
                             event.replyComponents(Messages.getError("Can't send messages in this channel")).useComponentsV2().setEphemeral(true).queue();
                         });
+            } else {
+                event.replyComponents(Messages.getError("Channels which are not a Text channel are not supportet at the moment.")).useComponentsV2().setEphemeral(true).queue();
             }
         }
     }

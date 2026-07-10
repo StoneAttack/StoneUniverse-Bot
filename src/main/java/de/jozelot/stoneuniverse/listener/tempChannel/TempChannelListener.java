@@ -1,4 +1,4 @@
-package de.jozelot.stoneuniverse.listener;
+package de.jozelot.stoneuniverse.listener.tempChannel;
 
 import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannel;
@@ -8,6 +8,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class TempChannelListener extends ListenerAdapter {
 
@@ -54,6 +58,11 @@ public class TempChannelListener extends ListenerAdapter {
 
                 channelLeft.upsertPermissionOverride(newOwner)
                         .grant(Permission.MANAGE_CHANNEL, Permission.VOICE_MUTE_OTHERS, Permission.PRIORITY_SPEAKER, Permission.VOICE_DEAF_OTHERS, Permission.VOICE_SET_STATUS)
+                        .queue();
+                channelLeft.sendMessageComponents(bot.getBootstrap().getTempChannelSystem().getTempChannelUI().getNewOwner(oldOwner.getIdLong(), newOwner.getIdLong()))
+                        .setAllowedMentions(Collections.emptyList())
+                        .mentionUsers(newOwner.getIdLong())
+                        .useComponentsV2()
                         .queue();
             }
         }
