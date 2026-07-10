@@ -6,9 +6,7 @@ import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannelUI;
 import de.jozelot.stoneuniverse.util.Messages;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.container.Container;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PermissionOverride;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -63,6 +61,10 @@ public class TempChannelSettingsListener extends ListenerAdapter {
         } else if (buttonId.startsWith("tempchannel:change_limit:")) {
             Modal modal = ui.getChangeLimit(event.getChannelId(), event.getChannel().asAudioChannel().getUserLimit());
             event.replyModal(modal).queue();
+
+        } else if (buttonId.startsWith("tempchannel:kick:")) {
+            Modal modal = ui.getKickModal(channel.getId());
+            event.replyModal(modal).queue();
         }
     }
 
@@ -115,6 +117,36 @@ public class TempChannelSettingsListener extends ListenerAdapter {
             }, throwable -> {
                 event.replyComponents(Messages.getError("Can't apply limit!")).useComponentsV2().setEphemeral(true).queue();
             });
+        } else if (modalId.startsWith("tempchannel:kick:")) {
+            var mapping = event.getValue("tempchannel:kick:value");
+
+            if (mapping == null) {
+                event.replyComponents(Messages.getError("No choice found")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            var members = mapping.getAsMentions().getMembers();
+            Member member = members.getFirst();
+
+            var voiceState = member.getVoiceState();
+
+            if (voiceState == null || voiceState.getChannel().getIdLong() != event.getMember().getVoiceState().getChannel().getIdLong()) {
+                event.replyComponents(Messages.getError("Can't disconnect user: User is not in a voicechannel")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            if (member.getIdLong() == event.getMember().getIdLong()) {
+                event.replyComponents(Messages.getError("Can't disconnect user: You can't kick yourself")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            event.getGuild().kickVoiceMember(member).queue(success -> {
+                event.replyComponents(ui.getKickSuccess(member.getIdLong())).useComponentsV2().setEphemeral(true).queue();
+            }, throwable -> {
+                event.replyComponents(Messages.getError("Can't disconnect user: Missing permission")).useComponentsV2().setEphemeral(true).queue();
+            });
+
+            // User not in a voicechannel
         }
     }
 }

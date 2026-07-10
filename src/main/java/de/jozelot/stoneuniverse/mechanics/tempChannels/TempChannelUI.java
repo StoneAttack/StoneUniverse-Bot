@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.label.LabelChildComponent;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.components.textinput.TextInput;
@@ -60,10 +63,10 @@ public class TempChannelUI {
 
                 TextDisplay.of("### Nutzer Einstellungen"),
                 ActionRow.of(
-                        Button.of(ButtonStyle.PRIMARY, "tempchannel:invite:" + channel.getId(), "Nutzer einladen", Emoji.fromUnicode("➕")),
-                        Button.of(ButtonStyle.SECONDARY, "tempchannel:change_owner:" + channel.getId(), "Besitzer übertragen", Emoji.fromUnicode("\uD83D\uDC51")),
+                        Button.of(ButtonStyle.PRIMARY, "tempchannel:invite:" + channel.getId(), "Nutzer einladen", Emoji.fromUnicode("➕")).withDisabled(true),
+                        Button.of(ButtonStyle.SECONDARY, "tempchannel:change_owner:" + channel.getId(), "Besitzer übertragen", Emoji.fromUnicode("\uD83D\uDC51")).withDisabled(true),
                         Button.of(ButtonStyle.DANGER, "tempchannel:kick:" + channel.getId(), "Nutzer kicken", Emoji.fromUnicode("\uD83D\uDC62")),
-                        Button.of(ButtonStyle.DANGER, "tempchannel:ban:" + channel.getId(), "Nutzer ausschließen", Emoji.fromUnicode("⛔"))
+                        Button.of(ButtonStyle.DANGER, "tempchannel:ban:" + channel.getId(), "Nutzer ausschließen", Emoji.fromUnicode("⛔")).withDisabled(true)
                 )
         );
     }
@@ -111,5 +114,23 @@ public class TempChannelUI {
                 .build();
 
         return Modal.create("tempchannel:change_limit:" + channelId, "Nutzerlimit ändern").addComponents(info, Label.of("Limit", limit)).build();
+    }
+
+    public EntitySelectMenu getMemberSelectMenu(String aktion) {
+        return EntitySelectMenu.create("tempchannel:" + aktion +":value", EntitySelectMenu.SelectTarget.USER)
+                .setPlaceholder("Wähle ein Mitglied aus...")
+                .setRequiredRange(1, 1)
+                .build();
+    }
+
+    public Modal getKickModal(String channelId) {
+        return Modal.create("tempchannel:kick:" + channelId, "Nutzer kicken").addComponents(Label.of("Nutzer", getMemberSelectMenu("kick"))).build();
+    }
+
+    public Container getKickSuccess(long userId) {
+        return Container.of(
+                TextDisplay.of("## ✅ Nutzer gekickt"),
+                TextDisplay.of("Du hast <@" + userId + "> erfolgreich aus dem Kanal entfernt!")
+        );
     }
 }
