@@ -15,6 +15,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
+
 public class TempChannelSettingsListener extends ListenerAdapter {
 
     private final StoneUniverse bot;
@@ -64,6 +67,15 @@ public class TempChannelSettingsListener extends ListenerAdapter {
 
         } else if (buttonId.startsWith("tempchannel:kick:")) {
             Modal modal = ui.getKickModal(channel.getId());
+            event.replyModal(modal).queue();
+        } else if (buttonId.startsWith("tempchannel:change_owner:")) {
+            Modal modal = ui.getOwnerModal(channel.getId());
+            event.replyModal(modal).queue();
+        } else if (buttonId.startsWith("tempchannel:ban:")) {
+            Modal modal = ui.getBanModal(channel.getId());
+            event.replyModal(modal).queue();
+        } else if (buttonId.startsWith("tempchannel:invite:")) {
+            Modal modal = ui.getInviteModal(channel.getId());
             event.replyModal(modal).queue();
         }
     }
@@ -147,6 +159,104 @@ public class TempChannelSettingsListener extends ListenerAdapter {
             });
 
             // User not in a voicechannel
+        } else if (modalId.startsWith("tempchannel:change_owner:")) {
+            var mapping = event.getValue("tempchannel:change_owner:value");
+
+            if (mapping == null) {
+                event.replyComponents(Messages.getError("No choice found")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            var members = mapping.getAsMentions().getMembers();
+            if (members.isEmpty()) return;
+
+            Member member = members.getFirst();
+
+            if (member.getIdLong() == event.getMember().getIdLong()) {
+                event.replyComponents(Messages.getError("Can't change owner: You are already the owner!")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            var targetVoiceState = member.getVoiceState();
+            var ownerVoiceState = event.getMember().getVoiceState();
+
+            if (targetVoiceState == null || !targetVoiceState.inAudioChannel() ||
+                    ownerVoiceState == null || !ownerVoiceState.inAudioChannel() ||
+                    targetVoiceState.getChannel().getIdLong() != ownerVoiceState.getChannel().getIdLong()) {
+
+                event.replyComponents(Messages.getError("Can't change owner: User is not in your voicechannel!")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            channel.upsertPermissionOverride(member).grant(Permission.MANAGE_CHANNEL).queue(success -> {
+                channel.upsertPermissionOverride(event.getMember()).deny(Permission.MANAGE_CHANNEL).queue(success2 -> {
+                    event.replyComponents(ui.getNewOwner(event.getMember().getIdLong(), member.getIdLong()))
+                            .useComponentsV2()
+                            .setAllowedMentions(Collections.EMPTY_LIST)
+                            .mentionUsers(member.getIdLong())
+                            .queue();
+                    tempChannel.setNewOwner(member.getIdLong());
+                }, throwable -> {
+                    event.replyComponents(Messages.getError("Could not apply permissions for old owner!")).useComponentsV2().setEphemeral(true).queue();
+                });
+            }, throwable -> {
+                event.replyComponents(Messages.getError("Could not apply permissions for new owner!")).useComponentsV2().setEphemeral(true).queue();
+            });
+        } else if (modalId.startsWith("tempchannel:ban:")) {
+            var mapping = event.getValue("tempchannel:ban:value");
+
+            if (mapping == null) {
+                event.replyComponents(Messages.getError("No choice found")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            var members = mapping.getAsMentions().getMembers();
+            if (members.isEmpty()) return;
+
+            Member member = members.getFirst();
+            var targetVoiceState = member.getVoiceState();
+
+            if (channel == null) return;
+
+            if (targetVoiceState != null && targetVoiceState.inAudioChannel() &&
+                    targetVoiceState.getChannel().getIdLong() == channel.getIdLong()) {
+
+                event.getGuild().kickVoiceMember(member).queue();
+            }
+
+            channel.upsertPermissionOverride(member).deny(Permission.VOICE_CONNECT).queue(success -> {
+                event.replyComponents(ui.getBanSuccess(member.getIdLong())).useComponentsV2().setEphemeral(true).queue();
+            }, throwable -> {
+                event.replyComponents(Messages.getError("Could not apply ban permissions!")).useComponentsV2().setEphemeral(true).queue();
+            });
+        } else if (modalId.startsWith("tempchannel:invite:")) {
+            var mapping = event.getValue("tempchannel:invite:value");
+
+            if (mapping == null) {
+                event.replyComponents(Messages.getError("No choice found")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            var members = mapping.getAsMentions().getMembers();
+            if (members.isEmpty()) return;
+
+            Member member = members.getFirst();
+
+            if (member.getIdLong() == event.getMember().getIdLong()) {
+                event.replyComponents(Messages.getError("Can't invite yourself")).useComponentsV2().setEphemeral(true).queue();
+                return;
+            }
+
+            if (channel == null) return;
+
+            channel.upsertPermissionOverride(member).grant(Permission.VOICE_CONNECT).queue(success -> {
+                event.replyComponents(ui.getInviteSuccess(member.getIdLong())).useComponentsV2().setEphemeral(true).queue();
+                member.getUser().openPrivateChannel().queue(privateChannel -> {
+                    privateChannel.sendMessageComponents(ui.getInvite(bot.getBootstrap().getConfig(), tempChannel, member.getIdLong())).useComponentsV2().queue();
+                });
+            }, throwable -> {
+                event.replyComponents(Messages.getError("Could not apply invite because of a permission lack!")).useComponentsV2().setEphemeral(true).queue();
+            });
         }
     }
 }

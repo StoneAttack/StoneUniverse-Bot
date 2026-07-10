@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
 
 public class TempChannelSystem {
 
@@ -112,7 +113,13 @@ public class TempChannelSystem {
         Guild guild = member.getGuild();
 
         String nameFormat = bot.getBootstrap().getConfig().getSystem().getTempChannel().getDefaultFormat();
-        String finalChannelName = nameFormat.replace("{username}", member.getEffectiveName());
+        String safeUsername = Matcher.quoteReplacement(member.getEffectiveName());
+
+        String finalChannelName = nameFormat.replace("{username}", safeUsername);
+
+        if (finalChannelName.length() > 100) {
+            finalChannelName = finalChannelName.substring(0, 100);
+        }
 
         long categoryId = bot.getBootstrap().getConfig().getSystem().getTempChannel().getCategoryId();
         Category category = null;
