@@ -83,7 +83,7 @@ public class GiveawayUI {
     public Container getGiveawayMessage(Giveaway giveaway) {
         long drawDateMs = giveaway.getDrawDate();
         long discordTimestamp = drawDateMs / 1000;
-        String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "\n**Teilnahme-Limit:** " + giveaway.getEntryLimit();
+        String teilnahmeLimit = giveaway.getEntryLimit() == 0 ? "" : "/" + giveaway.getEntryLimit();
 
         String description = giveaway.getDescription().equalsIgnoreCase("") ? "Keine Beschreibung angegeben." : giveaway.getDescription();
 
