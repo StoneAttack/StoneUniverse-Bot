@@ -38,6 +38,8 @@ public class ConsoleListener {
     private void executeConsoleCommand(String input) {
         if (input.isEmpty()) return;
 
+        logger.info("Issued console command: '{}'", input);
+
         String[] args = input.split(" ", 2);
         String command = args[0].toLowerCase();
 
