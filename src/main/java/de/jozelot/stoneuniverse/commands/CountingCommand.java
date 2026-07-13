@@ -21,7 +21,7 @@ import java.util.List;
 public class CountingCommand implements Command {
 
     private final StoneUniverse bot;
-    private static final Logger logger = LoggerFactory.getLogger(RankCommand.class);
+    private static final Logger logger = LoggerFactory.getLogger(CountingCommand.class);
 
     public CountingCommand(StoneUniverse bot) {
         this.bot = bot;
@@ -38,6 +38,7 @@ public class CountingCommand implements Command {
     public void execute(SlashCommandInteractionEvent event) {
         String subcommandName = event.getSubcommandName();
         if (subcommandName.equalsIgnoreCase("stats")) {
+            logger.info(event.getMember().getEffectiveName() + " issued server command: /" + event.getFullCommandName());
             event.replyComponents(Messages.getCountingStats(bot.getBootstrap().getCountingSystem())).useComponentsV2().setEphemeral(true).queue();
         }
     }

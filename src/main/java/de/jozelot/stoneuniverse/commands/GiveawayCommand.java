@@ -3,6 +3,7 @@ package de.jozelot.stoneuniverse.commands;
 import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.interfaces.Command;
 import de.jozelot.stoneuniverse.mechanics.giveaway.Giveaway;
+import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayUI;
 import de.jozelot.stoneuniverse.util.Messages;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.label.Label;
@@ -16,6 +17,8 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.modals.Modal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.List;
 public class GiveawayCommand implements Command {
 
     private final StoneUniverse bot;
+    private static final Logger logger = LoggerFactory.getLogger(GiveawayCommand.class);
 
     public GiveawayCommand(StoneUniverse bot) {
         this.bot = bot;
@@ -30,18 +34,18 @@ public class GiveawayCommand implements Command {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("giveaway", "\uD83C\uDF89 | Admin: Verwalte und erstelle Giveaways").addSubcommands(
+        return Commands.slash("giveaway", "\uD83C\uDF89 | Admin: Verwalte und erstelle Giveaways.").addSubcommands(
                 new SubcommandData("setup", "\uD83C\uDF89 | Admin: Erstelle ein Giveaway"),
 
-                new SubcommandData("end", "\uD83C\uDF89 | Admin: Beende ein Giveaway vorzeitig und lose es aus")
+                new SubcommandData("end", "\uD83C\uDF89 | Admin: Beende ein Giveaway vorzeitig und lose es aus.")
                             .addOption(OptionType.STRING, "id", "Die ID des Giveaways", true, true),
 
-                new SubcommandData("cancel", "\uD83C\uDF89 | Admin: Breche ein Giveaway ab")
+                new SubcommandData("cancel", "\uD83C\uDF89 | Admin: Breche ein Giveaway ab.")
                         .addOption(OptionType.STRING, "id", "Die ID des Giveaways", true, true),
 
-                new SubcommandData("list", "\uD83C\uDF89 | Admin: Liste alle aktuellen Giveaways auf"),
+                new SubcommandData("list", "\uD83C\uDF89 | Admin: Liste alle aktuellen Giveaways auf."),
 
-                new SubcommandData("reroll", "\uD83C\uDF89 | Admin: Lose die Gewinner eines Giveaways neu aus")
+                new SubcommandData("reroll", "\uD83C\uDF89 | Admin: Lose die Gewinner eines Giveaways neu aus.")
                         .addOption(OptionType.STRING, "id", "Die ID des Giveaways", true, true)
         );
     }
@@ -62,6 +66,7 @@ public class GiveawayCommand implements Command {
         } else {
             event.replyComponents(Messages.getError("Unknown Subcommand: " + subcommandName)).useComponentsV2().setEphemeral(true).queue();
         }
+        logger.info(event.getMember().getEffectiveName() + " issued server command: /" + event.getFullCommandName());
     }
 
     @Override

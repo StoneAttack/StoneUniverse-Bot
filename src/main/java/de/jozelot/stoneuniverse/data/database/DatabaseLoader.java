@@ -23,6 +23,7 @@ public class DatabaseLoader {
     }
 
     public boolean connect() {
+        logger.info("Connecting to postgres...");
         String host = bot.getBootstrap().getConfig().getDatabase().getHost();
         int port = bot.getBootstrap().getConfig().getDatabase().getPort();
         String database = bot.getBootstrap().getConfig().getDatabase().getDatabase();

@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
 public class GiveawayListener extends ListenerAdapter {
 
     private final StoneUniverse bot;
+    private static final Logger logger = LoggerFactory.getLogger(GiveawayListener.class);
 
     public GiveawayListener(StoneUniverse bot) {
         this.bot = bot;
@@ -70,6 +73,7 @@ public class GiveawayListener extends ListenerAdapter {
             long channelId = Long.parseLong(modelId.replace("giveaway:setup:", ""));
 
             Giveaway giveaway = bot.getBootstrap().getGiveawayService().createGiveaway(creatorId, titel, beschreibung, entryLimit, winnerCount, drawDate, channelId);
+            logger.info(event.getMember().getEffectiveName() + " created a new Giveaway: " + titel + ", Entrylimit: " + entryLimit + ", WinnerCount: " + winnerCount);
 
             var shardManager = bot.getBootstrap().getBotManager().getShardManager();
             var channel = shardManager.getTextChannelById(channelId);
@@ -121,6 +125,7 @@ public class GiveawayListener extends ListenerAdapter {
                 return;
             }
 
+            logger.info(event.getMember().getEffectiveName() + " joined a giveaway: " + giveaway.getTitel() + " | Participants: " + giveaway.getEntryCount());
             event.getMessage().editMessageComponents(bot.getBootstrap().getGiveawayService().getGiveawayUI().getGiveawayMessage(giveaway))
                     .useComponentsV2()
                     .setAllowedMentions(Collections.emptyList())
@@ -153,6 +158,7 @@ public class GiveawayListener extends ListenerAdapter {
                 return;
             }
 
+            logger.info(event.getMember().getEffectiveName() + " left a giveaway: " + giveaway.getTitel() + " | Participants: " + giveaway.getEntryCount());
             textChannel.retrieveMessageById(giveaway.getMessageId()).queue(message -> {
                 message.editMessageComponents(giveawayService.getGiveawayUI().getGiveawayMessage(giveaway))
                         .setAllowedMentions(Collections.emptyList())

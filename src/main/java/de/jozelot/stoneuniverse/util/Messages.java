@@ -9,16 +9,20 @@ import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.filedisplay.FileDisplay;
 import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.utils.FileUpload;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -305,6 +309,34 @@ public class Messages {
                 Separator.createDivider(Separator.Spacing.LARGE),
 
                 TextDisplay.of("-# " + config.getSystem().getMessages().getMedia().getStand())
+        );
+    }
+
+    public static Container getDownload(String typ, File file) {
+        String formatierterTyp = typ.substring(0, 1).toUpperCase(Locale.ROOT) + typ.substring(1).toLowerCase(Locale.ROOT);
+
+        return Container.of(
+                TextDisplay.of("# 📥 Download fertig"),
+                TextDisplay.of("-# Dein Download von unseren Servern ist fertig!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Typ:** " + formatierterTyp),
+
+                FileDisplay.fromFile(FileUpload.fromData(file))
+        );
+    }
+
+    public static Container getUpload(String typ) {
+        String formatierterTyp = typ.substring(0, 1).toUpperCase(Locale.ROOT) + typ.substring(1).toLowerCase(Locale.ROOT);
+
+        return Container.of(
+                TextDisplay.of("# 📤 Upload erfolgreich"),
+                TextDisplay.of("-# Deine Datei wurde auf unsere Server hochgeladen!"),
+
+                Separator.createDivider(Separator.Spacing.SMALL),
+
+                TextDisplay.of("**Typ:** " + formatierterTyp)
         );
     }
 }

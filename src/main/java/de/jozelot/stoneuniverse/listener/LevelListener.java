@@ -10,12 +10,15 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
 public class LevelListener extends ListenerAdapter {
 
     private final StoneUniverse bot;
+    private static final Logger logger = LoggerFactory.getLogger(LevelListener.class);
 
     public LevelListener(StoneUniverse bot) {
         this.bot = bot;
@@ -60,6 +63,7 @@ public class LevelListener extends ListenerAdapter {
 
             var levelMgr = bot.getBootstrap().getLevelSystem();
 
+            logger.info(event.getMember().getEffectiveName() + " clicked 'level:leaderboard' button");
             event.deferReply().setEphemeral(true).queue(hook -> {
 
                 Messages.getLeaderboard(levelMgr.getTopLevel(10), event.getGuild()).thenAccept(container -> {
@@ -75,6 +79,7 @@ public class LevelListener extends ListenerAdapter {
 
             });
         } else if (buttonId.equalsIgnoreCase("level:info")) {
+            logger.info(event.getMember().getEffectiveName() + " clicked 'level:info' button");
             event.replyComponents(Messages.getLevelInfo(bot.getBootstrap().getConfig())).useComponentsV2().setEphemeral(true).queue();
         }
     }

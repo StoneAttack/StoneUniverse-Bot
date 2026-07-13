@@ -33,6 +33,7 @@ public class RankCommand implements Command {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
+        logger.info(event.getMember().getEffectiveName() + " issued server command: /" + event.getFullCommandName());
         if (event.getChannelIdLong() == bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId()) {
             event.replyComponents(Messages.getError("Can't use that command in this Channel.")).useComponentsV2().setEphemeral(true).queue();
             return;

@@ -12,10 +12,13 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LevelCommand implements Command {
 
     private final StoneUniverse bot;
+    private static final Logger logger = LoggerFactory.getLogger(LevelCommand.class);
 
     public LevelCommand(StoneUniverse bot) {
         this.bot = bot;
@@ -23,7 +26,7 @@ public class LevelCommand implements Command {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("level", "🏆 | Admin: Verwalte die Level und XP der Mitglieder")
+        return Commands.slash("level", "🏆 | Admin: Verwalte die Level und XP der Mitglieder.")
                 .addSubcommandGroups(new SubcommandGroupData("get", "🏆 | Admin: Schau dir die Daten eines Mitglieds an")
                         .addSubcommands(
                                 new SubcommandData("xp", "🏆 | Admin: Zeigt die XP eines Mitglieds an")
@@ -32,7 +35,7 @@ public class LevelCommand implements Command {
                                         .addOption(OptionType.USER, "user", "Das Mitglied", true)
                         )
                 )
-                .addSubcommandGroups(new SubcommandGroupData("set", "🏆 | Admin: Setze die Daten eines Mitglieds fest")
+                .addSubcommandGroups(new SubcommandGroupData("set", "🏆 | Admin: Setze die Daten eines Mitglieds fest.")
                         .addSubcommands(
                                 new SubcommandData("xp", "🏆 | Admin: Setzt die XP eines Mitglieds auf einen festen Wert")
                                         .addOption(OptionType.USER, "user", "Das Mitglied", true)
@@ -42,7 +45,7 @@ public class LevelCommand implements Command {
                                         .addOption(OptionType.INTEGER, "anzahl", "Das genaue Level", true)
                         )
                 )
-                .addSubcommandGroups(new SubcommandGroupData("add", "🏆 | Admin: Füge einem Mitglied Daten hinzu")
+                .addSubcommandGroups(new SubcommandGroupData("add", "🏆 | Admin: Füge einem Mitglied Daten hinzu.")
                         .addSubcommands(
                                 new SubcommandData("xp", "🏆 | Admin: Gibt einem Mitglied zusätzliche XP")
                                         .addOption(OptionType.USER, "user", "Das Mitglied", true)
@@ -52,7 +55,7 @@ public class LevelCommand implements Command {
                                         .addOption(OptionType.INTEGER, "anzahl", "Wie viele Level hinzugefügt werden", true)
                         )
                 )
-                .addSubcommandGroups(new SubcommandGroupData("remove", "🏆 | Admin: Ziehe einem Mitglied Daten ab")
+                .addSubcommandGroups(new SubcommandGroupData("remove", "🏆 | Admin: Ziehe einem Mitglied Daten ab.")
                         .addSubcommands(
                                 new SubcommandData("xp", "🏆 | Admin: Zieht einem Mitglied XP ab")
                                         .addOption(OptionType.USER, "user", "Das Mitglied", true)
@@ -66,6 +69,7 @@ public class LevelCommand implements Command {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
+        logger.info(event.getMember().getEffectiveName() + " issued server command: /" + event.getFullCommandName());
         String group = event.getSubcommandGroup();
         String subcommand = event.getSubcommandName();
 

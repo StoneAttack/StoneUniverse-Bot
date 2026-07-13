@@ -37,6 +37,7 @@ public class LeaderboardCommand implements Command {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
+        logger.info(event.getMember().getEffectiveName() + " issued server command: /" + event.getFullCommandName());
         if (event.getGuild() == null) return;
 
         if (event.getChannelIdLong() == bot.getBootstrap().getConfig().getMinigames().getCounting().getChannelId()) {

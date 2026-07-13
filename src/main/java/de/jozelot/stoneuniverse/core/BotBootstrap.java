@@ -14,6 +14,7 @@ import de.jozelot.stoneuniverse.mechanics.CountingSystem;
 import de.jozelot.stoneuniverse.mechanics.giveaway.GiveawayService;
 import de.jozelot.stoneuniverse.mechanics.levelSystem.LevelSystem;
 import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannelSystem;
+import de.jozelot.stoneuniverse.messages.MessageManager;
 import de.jozelot.stoneuniverse.registry.CommandRegistry;
 import de.jozelot.stoneuniverse.registry.ListenerRegistry;
 import org.slf4j.Logger;
@@ -45,6 +46,8 @@ public class BotBootstrap implements Bootstrap {
     private ListenerRegistry listenerRegistry;
     private CommandRegistry commandRegistry;
 
+    private MessageManager messageManager;
+
     public BotBootstrap(StoneUniverse bot) {
         this.bot = bot;
     }
@@ -66,6 +69,7 @@ public class BotBootstrap implements Bootstrap {
         tempChannelSystem = new TempChannelSystem(bot);
         levelSystem = new LevelSystem(bot);
         giveawayService = new GiveawayService(bot, scheduler);
+        messageManager = new MessageManager(bot);
         logger.info("Object registration finished!");
         return true;
     }
@@ -83,6 +87,7 @@ public class BotBootstrap implements Bootstrap {
         if (!countingSystem.initialize()) return false;
         if (!levelSystem.initialize()) return false;
         if (!giveawayService.initialize()) return false;
+        if (!messageManager.initialize()) return false;
         logger.info("Object activation finished!");
         return true;
     }
@@ -106,13 +111,27 @@ public class BotBootstrap implements Bootstrap {
         levelSystem.shutdown();
         giveawayService.save();
         databaseLoader.close();
+
         configLoader.reload();
         databaseLoader.connect();
-        botManager.start();
+        if (!botManager.start()) {
+            logger.error("Bot couldn't be startet during reload!");
+            System.exit(1);
+            return;
+        }
+
+        if (!listenerRegistry.register()) {
+            logger.error("Listener registry failed!");
+            return;
+        }
+
         heartBeat.start();
+
         levelSystem.initialize();
         giveawayService.initialize();
-        logger.info("Reload finished!");
+        messageManager.initialize();
+
+        logger.info("Reload finished successfully!");
     }
 
     public BotManager getBotManager() {
@@ -144,5 +163,8 @@ public class BotBootstrap implements Bootstrap {
     }
     public GiveawayService getGiveawayService() {
         return giveawayService;
+    }
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 }

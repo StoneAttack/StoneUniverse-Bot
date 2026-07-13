@@ -80,6 +80,7 @@ public class CountingListener extends ListenerAdapter {
         String buttonId = event.getButton().getCustomId();
 
         if (buttonId.equalsIgnoreCase("counting:stats")) {
+            logger.info(event.getMember().getEffectiveName() + " clicked 'counting:stats' button");
             event.replyComponents(Messages.getCountingStats(countingSystem)).useComponentsV2().setEphemeral(true).queue();
             return;
         }
