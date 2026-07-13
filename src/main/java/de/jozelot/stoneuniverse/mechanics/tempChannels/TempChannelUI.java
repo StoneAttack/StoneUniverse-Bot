@@ -31,14 +31,9 @@ public class TempChannelUI {
         this.bot = bot;
     }
 
-    public Container getSettingsMessage(long creatorId, VoiceChannel channel) {
+    public Container getSettingsMessage(long creatorId, VoiceChannel channel, boolean isLocked) {
         Role everyoneRole = channel.getGuild().getPublicRole();
         PermissionOverride override = channel.getPermissionOverride(everyoneRole);
-
-        boolean isLocked = false;
-        if (override != null) {
-            isLocked = override.getDenied().contains(Permission.VOICE_CONNECT);
-        }
 
         Button visibilityButton;
         if (isLocked) {

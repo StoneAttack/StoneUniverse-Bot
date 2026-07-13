@@ -191,7 +191,7 @@ public class TempChannelSystem {
     }
 
     public void sendMessage(TempChannel tempChannel, VoiceChannel voiceChannel) {
-        Container infoMessage = bot.getBootstrap().getTempChannelSystem().getTempChannelUI().getSettingsMessage(tempChannel.getOwnerId(), voiceChannel);
+        Container infoMessage = bot.getBootstrap().getTempChannelSystem().getTempChannelUI().getSettingsMessage(tempChannel.getOwnerId(), voiceChannel, false);
         voiceChannel.sendMessageComponents(infoMessage).useComponentsV2().queue();
     }
 }

@@ -49,16 +49,16 @@ public class TempChannelSettingsListener extends ListenerAdapter {
             Message message = event.getMessage();
 
             channel.upsertPermissionOverride(everyoneRole).deny(Permission.VOICE_CONNECT).queue(success -> {
-                message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel)).useComponentsV2().queue();
+                message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel, true)).useComponentsV2().queue();
                 event.replyComponents(ui.getChangeSuccess("Kanal gesperrt")).useComponentsV2().setEphemeral(true).queue();
             });
-
         } else if (buttonId.startsWith("tempchannel:unlock:")) {
             Role everyoneRole = channel.getGuild().getPublicRole();
             Message message = event.getMessage();
 
             channel.upsertPermissionOverride(everyoneRole).grant(Permission.VOICE_CONNECT).queue(success -> {
-                message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel)).useComponentsV2().queue();
+                // Hier wird "false" übergeben, weil wir den Kanal JETZT geöffnet haben
+                message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel, false)).useComponentsV2().queue();
                 event.replyComponents(ui.getChangeSuccess("Kanal entsperrt")).useComponentsV2().setEphemeral(true).queue();
             });
         } else if (buttonId.startsWith("tempchannel:change_limit:")) {
@@ -121,8 +121,12 @@ public class TempChannelSettingsListener extends ListenerAdapter {
                 return;
             }
 
+            Role everyoneRole = channel.getGuild().getPublicRole();
+            var override = channel.getPermissionOverride(everyoneRole);
+            boolean isCurrentlyLocked = override != null && override.getDenied().contains(Permission.VOICE_CONNECT);
+
             channel.getManager().setUserLimit(neuesLimit).queue(success -> {
-                event.getMessage().editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel)).useComponentsV2().queue();
+                event.getMessage().editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel, isCurrentlyLocked)).useComponentsV2().queue();
 
                 String responseText = (neuesLimit == 0) ? "Nutzerlimit wurde aufgehoben." : "Nutzerlimit wurde auf " + neuesLimit + " gesetzt.";
                 event.replyComponents(ui.getChangeSuccess(responseText)).useComponentsV2().setEphemeral(true).queue();
