@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class MediaCommand implements Command {
 
     private final StoneUniverse bot;
-    private static final Logger logger = LoggerFactory.getLogger(IPCommand.class);
+    private static final Logger logger = LoggerFactory.getLogger(MediaCommand.class);
 
     public MediaCommand(StoneUniverse bot) {
         this.bot = bot;
