@@ -159,6 +159,6 @@ public class LevelCommand implements Command {
 
     @Override
     public Permission getPermission() {
-        return Permission.ADMINISTRATOR;
+        return Permission.MANAGE_SERVER;
     }
 }
