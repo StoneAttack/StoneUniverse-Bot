@@ -30,6 +30,8 @@ public class HeartBeat {
         int voiceXpCooldown = bot.getBootstrap().getConfig().getSystem().getLevel().getVoiceXpCooldown();
         triggerStatusUpdateAsync();
 
+        var botSystem = bot.getBootstrap().getBotSystem();
+
         runningTask = scheduler.scheduleAtFixedRate(() -> {
             try {
                 secondsPassed++;
@@ -39,6 +41,9 @@ public class HeartBeat {
                 }
                 if (secondsPassed % voiceXpCooldown == 0) {
                     triggerVoiceLevelingAsync();
+                }
+                if (secondsPassed % 1800 == 0) {
+                    botSystem.cleanUpMemory();
                 }
 
             } catch (Exception e) {

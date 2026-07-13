@@ -47,6 +47,7 @@ public class BotBootstrap implements Bootstrap {
     private CommandRegistry commandRegistry;
 
     private MessageManager messageManager;
+    private BotSystem botSystem;
 
     public BotBootstrap(StoneUniverse bot) {
         this.bot = bot;
@@ -70,6 +71,7 @@ public class BotBootstrap implements Bootstrap {
         levelSystem = new LevelSystem(bot);
         giveawayService = new GiveawayService(bot, scheduler);
         messageManager = new MessageManager(bot);
+        botSystem = new BotSystem(bot);
         logger.info("Object registration finished!");
         return true;
     }
@@ -166,5 +168,8 @@ public class BotBootstrap implements Bootstrap {
     }
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+    public BotSystem getBotSystem() {
+        return botSystem;
     }
 }
