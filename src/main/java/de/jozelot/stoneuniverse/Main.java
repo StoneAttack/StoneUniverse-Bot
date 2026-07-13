@@ -1,5 +1,6 @@
 package de.jozelot.stoneuniverse;
 
+import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,9 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread( () -> {
             logger.info("Shutdown-Hook triggered. Preparing for shutdown...");
             bot.onDisable();
+
+            LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+            loggerContext.stop();
         }));
         logger.info("Startup finished! Done!");
     }
