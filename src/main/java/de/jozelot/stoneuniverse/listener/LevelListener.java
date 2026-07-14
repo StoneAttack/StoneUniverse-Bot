@@ -58,28 +58,31 @@ public class LevelListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         String buttonId = event.getButton().getCustomId();
+
+        if (event.isAcknowledged()) return;
+
         if (buttonId.equalsIgnoreCase("level:leaderboard")) {
             if (event.getGuild() == null) return;
 
             var levelMgr = bot.getBootstrap().getLevelSystem();
+            logger.info("{} clicked 'level:leaderboard' button", event.getMember().getEffectiveName());
 
-            logger.info(event.getMember().getEffectiveName() + " clicked 'level:leaderboard' button");
             event.deferReply().setEphemeral(true).queue(hook -> {
-
                 Messages.getLeaderboard(levelMgr.getTopLevel(10), event.getGuild()).thenAccept(container -> {
-
-                    hook.sendMessageComponents(container).useComponentsV2()
-                            .setAllowedMentions(Collections.emptyList())
-                            .queue();
-
+                    if (event.isAcknowledged()) {
+                        hook.sendMessageComponents(container).useComponentsV2()
+                                .setAllowedMentions(Collections.emptyList())
+                                .queue();
+                    }
                 }).exceptionally(throwable -> {
                     hook.sendMessageComponents(Messages.getError("Leaderboard couldn't be loaded")).useComponentsV2().queue();
                     return null;
                 });
-
             });
+
         } else if (buttonId.equalsIgnoreCase("level:info")) {
-            logger.info(event.getMember().getEffectiveName() + " clicked 'level:info' button");
+            logger.info("{} clicked 'level:info' button", event.getMember().getEffectiveName());
+
             event.replyComponents(Messages.getLevelInfo(bot.getBootstrap().getConfig())).useComponentsV2().setEphemeral(true).queue();
         }
     }

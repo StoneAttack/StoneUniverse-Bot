@@ -2,6 +2,7 @@ package de.jozelot.stoneuniverse.listener.tempChannel;
 
 import de.jozelot.stoneuniverse.StoneUniverse;
 import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannel;
+import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannelSystem;
 import de.jozelot.stoneuniverse.mechanics.tempChannels.TempChannelUI;
 import de.jozelot.stoneuniverse.util.Messages;
 import net.dv8tion.jda.api.Permission;
@@ -14,12 +15,15 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
 
 public class TempChannelSettingsListener extends ListenerAdapter {
 
+    private static final Logger logger = LoggerFactory.getLogger(TempChannelSettingsListener.class);
     private final StoneUniverse bot;
     private final TempChannelUI ui;
 
@@ -49,7 +53,11 @@ public class TempChannelSettingsListener extends ListenerAdapter {
             Message message = event.getMessage();
 
             channel.upsertPermissionOverride(everyoneRole).deny(Permission.VOICE_CONNECT).queue(success -> {
-                message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel, true)).useComponentsV2().queue();
+
+                message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel, true))
+                        .useComponentsV2()
+                        .queue();
+
                 event.replyComponents(ui.getChangeSuccess("Kanal gesperrt")).useComponentsV2().setEphemeral(true).queue();
             });
         } else if (buttonId.startsWith("tempchannel:unlock:")) {
@@ -57,7 +65,6 @@ public class TempChannelSettingsListener extends ListenerAdapter {
             Message message = event.getMessage();
 
             channel.upsertPermissionOverride(everyoneRole).grant(Permission.VOICE_CONNECT).queue(success -> {
-                // Hier wird "false" übergeben, weil wir den Kanal JETZT geöffnet haben
                 message.editMessageComponents(ui.getSettingsMessage(tempChannel.getOwnerId(), channel, false)).useComponentsV2().queue();
                 event.replyComponents(ui.getChangeSuccess("Kanal entsperrt")).useComponentsV2().setEphemeral(true).queue();
             });
